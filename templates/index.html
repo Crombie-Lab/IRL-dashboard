@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Indian River Lagoon | Water Monitor</title>
+<meta name="description" content="Recent measured water levels, winds, and tides near Cocoa, Florida." />
+<script src="https://cdn.plot.ly/plotly-2.35.3.min.js" defer></script>
+<style>
+:root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#132b3b;background:#f3f7fa}
+*{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:0 auto;padding:25px 19px 70px}
+a{color:#135b88;text-decoration:none}a:hover{text-decoration:underline}
+header{padding:34px 24px;background:linear-gradient(110deg,#12344e,#17667e);color:#fff;border-radius:18px}
+header .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#bfe7e7;font-weight:800}
+h1{font-size:clamp(26px,4vw,40px);margin:10px 0 4px;letter-spacing:-.045em}h2{font-size:19px;letter-spacing:-.02em;margin:0}
+header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
+.row{display:flex;gap:15px;flex-wrap:wrap}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 26px}
+.card{background:#fff;border:1px solid #e1eaf0;border-radius:14px;box-shadow:0 3px 18px #102d4410;padding:19px}
+.metric-label{font-size:13px;color:#5c7080;font-weight:650}.metric-value{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.03em;margin:7px 0 4px}
+.metric-caption,.caption{font-size:12px;color:#647887;line-height:1.5}.status{display:flex;align-items:center;gap:8px;margin:16px 0 18px;color:#415b69;font-size:13px}
+.dot{height:10px;width:10px;border-radius:100%;display:inline-block;background:#1ca876}.dot.stale{background:#c47924}
+.stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
+.plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
+.twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
+.explain h2{margin-bottom:7px}.explain p{margin:7px 0 13px}.meta{font-size:13px;color:#59717e}
+.warning{background:#fff8ea;border:1px solid #eed9ab;padding:12px;border-radius:9px;font-size:13px;color:#6d4c13;margin-bottom:16px}
+footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
+@media(max-width:700px){.metrics,.twocol{grid-template-columns:1fr}main{padding:14px 12px 40px}header{padding:26px 20px}.plot{height:300px}.smallplot{height:270px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">Cocoa, Florida · Observational dashboard</div><h1>Indian River Lagoon Water Monitor</h1><p>Recent water levels at Williams Point, coastal winds and pressure at Trident Pier, and Atlantic tide conditions. Updated approximately hourly when source data and scheduled processing are available.</p></header>
+<div class="status"><span class="dot" id="status-dot"></span><span id="refresh">Loading data timestamp…</span></div>
+<div id="warnings"></div>
+<div class="metrics">
+ <div class="card"><div class="metric-label">Williams Point · latest observed level</div><div id="stage-now" class="metric-value">—</div><div id="stage-time" class="metric-caption">—</div></div>
+ <div class="card"><div class="metric-label">Trident Pier · latest wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
+ <div class="card"><div class="metric-label">Trident Pier · latest barometric pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
+</div>
+<section class="stack">
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · past 14 days</h2><p>Actual measurements at the north Indian River Lagoon gauge; displayed in reported feet. This is a gauge level, not a measured depth of water on a road.</p></div><div id="stageplot" class="plot"></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Trident Pier: ocean water level and astronomical tide</h2><p>Observed ocean level versus predicted tide; both relative to MLLW and shown in meters. These are not directly comparable with Williams Point gauge heights.</p></div><div id="tideplot" class="plot"></div></article>
+ <div class="twocol">
+  <article class="card plot-card"><div class="plot-head"><h2>Wind speed and direction</h2><p>Wind direction is the direction it comes <strong>from</strong> (0° N, 90° E, 180° S, 270° W).</p></div><div id="windplot" class="smallplot"></div></article>
+  <article class="card plot-card"><div class="plot-head"><h2>Atmospheric pressure</h2><p>Measured at Trident Pier, in hectopascals (hPa).</p></div><div id="pressureplot" class="smallplot"></div></article>
+ </div>
+</section>
+<section class="card explain">
+<h2>Why does high water persist along the lagoon?</h2>
+<p>The Indian River Lagoon is a shallow, elongated estuary with limited connections to the Atlantic Ocean. Sustained winds can redistribute lagoon water and elevate levels along some shorelines. High lagoon water can also reduce the hydraulic gradient for stormwater outfalls, slowing drainage from low-lying streets and neighborhoods. Local rainfall, ground elevation, blocked or undersized drains, and tidal conditions can also contribute.</p>
+<p>These plots describe <em>water levels and weather</em>, not neighborhood-specific flood depth. They do not establish whether any street is passable. Do not drive through flooded roads.</p>
+<h2>Data and methods</h2>
+<p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Times are stored in UTC and shown in your browser's time zone. Data are preliminary where their providers have not completed quality control.</p>
+<p class="meta"><strong>Important:</strong> No automated flooding forecast, warning threshold, or road safety decision is provided. Check <a href="https://www.weather.gov/mlb/">NWS Melbourne</a> for official advisories. This is an independent informational project, not an official NOAA/NWS product.</p>
+</section>
+<footer>Compiled from public observation services. A missing or delayed upstream observation may produce an older displayed value. Source timestamps are shown explicitly. This monitor is separate from the historical flood modeling research project.</footer>
+</main>
+<script id="model" type="application/json">/*__PAYLOAD__*/</script>
+<script>
+window.addEventListener('load', () => {
+const payload=JSON.parse(document.getElementById('model').textContent);
+const dat=payload.trident||{}; const stage=payload.williams_point||[];
+const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'Not available';
+const last=a=>a&&a.length?a[a.length-1]:null;
+const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
+const built=fmt(payload.built_utc);const latest=last(stage);
+document.getElementById('refresh').textContent=`Site built ${built} · Williams Point latest ${fmt(latest?.t)}`;
+if(ageHours(latest?.t)>3){document.getElementById('status-dot').classList.add('stale');}
+document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
+document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · gauge reference':'No observation';
+const w=last(dat.wind),p=last(dat.pressure);
+const direction=d=>d==null?'':(['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8]);
+document.getElementById('wind-now').textContent=w?`${w.speed.toFixed(1)} m/s ${direction(w.direction)}`:'Unavailable';
+document.getElementById('wind-time').textContent=w?`${w.direction==null?'Direction unavailable':'From '+Math.round(w.direction)+'°'} · observed ${fmt(w.t)}`:'No recent wind observation';
+document.getElementById('pressure-now').textContent=p?`${p.v.toFixed(1)} hPa`:'Unavailable';
+document.getElementById('pressure-time').textContent=p?'Observed '+fmt(p.t):'No recent pressure observation';
+if(payload.warnings?.length){document.getElementById('warnings').innerHTML='<div class="warning">Some optional sources are unavailable or incomplete this update. Corresponding charts may be blank. Check the latest timestamp on each graph.</div>'}
+const config={responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']};
+const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:55,r:16,t:10,b:50},font:{size:12,color:'#395766'},hovermode:'x unified',xaxis:{type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
+function draw(id,traces,opts={}){
+ if(!traces.some(t=>t.x?.length)){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No observations available for this chart.</p>';return;}
+ Plotly.newPlot(id,traces,{...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0}},config);
+}
+function line(arr,name,color,key='v'){return {x:(arr||[]).map(r=>r.t),y:(arr||[]).map(r=>r[key]),name,type:'scattergl',mode:'lines',line:{color,width:2},connectgaps:false}}
+draw('stageplot',[line(stage,'Williams Point','#10799d')],{yaxis:{title:'Gauge stage (ft)'}});
+draw('tideplot',[line(dat.ocean,'Observed ocean','#10799d'),{...line(dat.tide,'Predicted tide','#dc8b3c'),line:{color:'#dc8b3c',dash:'dash',width:2}}],{yaxis:{title:'Height (m MLLW)'}});
+draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{margin:{r:42},yaxis:{title:'Speed (m/s)'},yaxis2:{title:'Direction (°)',overlaying:'y',side:'right',range:[0,360]}});
+draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{yaxis:{title:'hPa'}});
+});
+</script>
+</body>
+</html>
