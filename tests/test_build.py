@@ -1,6 +1,9 @@
 import importlib.util
 import tempfile
 import unittest
+from unittest.mock import patch
+from urllib.error import HTTPError
+from datetime import datetime, timezone
 from pathlib import Path
 
 MOD_PATH = Path(__file__).resolve().parents[1] / 'scripts' / 'build.py'
@@ -10,6 +13,53 @@ spec.loader.exec_module(mod)
 
 
 class TestParsing(unittest.TestCase):
+    def test_iem_water_height_mhhw(self):
+        fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
+        values = mod.parse_iem(fixture, require_reported_units=True)
+        self.assertEqual([r['v'] for r in values], [1.5, 1.52, 1.6])
+        self.assertEqual(values[-1]['t'], '2026-11-04T15:30+00:00')
+
+    def test_iem_failure_paths(self):
+        for payload in [b'', b'station,valid[UTC],Water Height (MHHW)[ft]\nWIPF1,invalid,1\n',
+                        b'station,valid[UTC],Water Height (MHHW)[ft]\nWIPF1,2026-11-04,NaN\n',
+                        b'station,valid[UTC],Temperature[C]\nWIPF1,2026-11-04,20\n']:
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                mod.parse_iem(payload, require_reported_units=True)
+        with self.assertRaisesRegex(ValueError, 'Unverified'):
+            mod.parse_iem(b'station,valid,Stage\nWIPF1,2026-11-04,1\n', require_reported_units=True)
+
+    def test_coops_missing_invalid_and_error(self):
+        payload = b'{"data":[{"t":"bad","s":"3"},{"t":"2026-11-04 15:00","s":"NaN"},{"t":"2026-11-04 15:06","s":"3","d":"999","g":"-1"}]}'
+        self.assertEqual(mod.parse_coops(payload, 'wind'), [
+            {'t':'2026-11-04T15:06+00:00','speed':3,'direction':None,'gust':None}])
+        for payload in [b'{"error":{"message":"No data"}}', b'{}']:
+            with self.assertRaises(ValueError):
+                mod.parse_coops(payload, 'water_level')
+
+    def test_retry_after_seconds_and_http_date(self):
+        for retry, expected in [('10', 10), ('Wed, 04 Nov 2026 15:00:20 GMT', 20)]:
+            error = HTTPError('https://example.invalid', 429, 'rate limit', {'Retry-After':retry}, None)
+            with patch.object(mod, 'urlopen', side_effect=error) as fetch, patch.object(mod.time, 'sleep') as sleep, patch.object(mod, 'datetime') as clock:
+                clock.now.return_value = datetime(2026,11,4,15,0,tzinfo=timezone.utc)
+                with self.assertRaises(HTTPError):
+                    mod.get_bytes('https://example.invalid', {}, max_attempts=2)
+                sleep.assert_called_once_with(expected)
+                self.assertEqual(fetch.call_count, 2)
+
+    def test_long_retry_after_does_not_retry_early(self):
+        error = HTTPError('https://example.invalid', 503, 'unavailable', {'Retry-After':'120'}, None)
+        with patch.object(mod, 'urlopen', side_effect=error) as fetch, patch.object(mod.time, 'sleep') as sleep:
+            with self.assertRaises(HTTPError):
+                mod.get_bytes('https://example.invalid', {})
+            sleep.assert_not_called()
+            self.assertEqual(fetch.call_count, 1)
+
+    def test_primary_failure_does_not_render(self):
+        with patch.object(mod, 'get_bytes', return_value=b''), patch.object(mod, 'render') as render:
+            with self.assertRaises(ValueError):
+                mod.run()
+            render.assert_not_called()
+
     def test_iem_stage(self):
         csv = b'station,valid(UTC),Stage,Flow\nWIPF1,2026-11-04 15:00,1.50,0\nWIPF1,2026-11-04 15:06,1.52,0\n'
         values = mod.parse_iem(csv)

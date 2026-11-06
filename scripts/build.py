@@ -11,6 +11,7 @@ import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -37,7 +38,13 @@ def get_bytes(base, params, max_attempts=4):
             if exc.code not in (429, 500, 502, 503, 504) or attempt == max_attempts - 1:
                 raise
             retry = exc.headers.get('Retry-After', '')
-            delay = min(90, max(3 * 2 ** attempt, int(retry) if retry.isdigit() else 0))
+            try:
+                retry_seconds = float(retry) if retry.isdigit() else (parsedate_to_datetime(retry) - datetime.now(UTC)).total_seconds()
+            except (ValueError, TypeError, OverflowError):
+                retry_seconds = 0
+            if retry_seconds > 90:
+                raise  # Preserve the published site rather than retry before the provider permits.
+            delay = min(90, max(3 * 2 ** attempt, retry_seconds))
             time.sleep(delay)
         except (URLError, TimeoutError) as exc:
             if attempt == max_attempts - 1:
@@ -70,12 +77,12 @@ def select_stage_column(columns):
             if compact == keyword:
                 return original
     for original, compact in normalized.items():
-        if compact.startswith(('stage', 'primary', 'gageheight')):
+        if compact.startswith(('stage', 'primary', 'gageheight', 'waterheight')):
             return original
     raise ValueError('Cannot identify IEM stage column; CSV columns: ' + ', '.join(columns))
 
 
-def parse_iem(payload):
+def parse_iem(payload, *, require_reported_units=False):
     source = io.StringIO(payload.decode('utf-8-sig'))
     lines = [line for line in source if line.strip() and not line.lstrip().startswith('#')]
     rows = list(csv.DictReader(lines))
@@ -86,6 +93,8 @@ def parse_iem(payload):
     if not stamp_field:
         raise ValueError('No valid time in IEM response; columns: ' + ', '.join(fields))
     stage_field = select_stage_column(fields)
+    if require_reported_units and stage_field != 'Water Height (MHHW)[ft]':
+        raise ValueError('Unverified Williams Point units/datum: ' + stage_field)
     observations = {}
     for row in rows:
         if str(row.get('station', 'WIPF1')).strip().upper() != 'WIPF1':
@@ -119,6 +128,8 @@ def parse_coops(payload, product):
             continue
         if product == 'wind':
             speed, direction, gust = (safe_float(row.get(k)) for k in ('s','d','g'))
+            direction = direction if direction is not None and 0 <= direction <= 360 else None
+            gust = gust if gust is not None and 0 <= gust <= 100 else None
             if speed is not None and 0 <= speed <= 100:
                 results.append({'t': timestamp, 'speed': speed, 'direction': direction, 'gust': gust})
         else:
@@ -166,7 +177,7 @@ def run():
     # Williams Point is mandatory; don't replace the previously published site with an empty chart.
     stage_params = {'station':'WIPF1','sts': stage_start.strftime('%Y-%m-%dT%H:%MZ'),
                     'ets': now.strftime('%Y-%m-%dT%H:%MZ'), 'fmt':'csv','kind':'obs','tz':'UTC'}
-    stage = parse_iem(get_bytes(IEM, stage_params))
+    stage = parse_iem(get_bytes(IEM, stage_params), require_reported_units=True)
     warnings = []
     sources = {}
     optional = {
@@ -189,7 +200,9 @@ def run():
         'trident': sources,
         'status': {'williams_point': metrics(stage), **{k: metrics(v) for k,v in sources.items()}},
         'warnings': warnings,
-        'source_notes': {'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1',
+        'source_notes': {'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1; Water Height (MHHW)[ft]',
+                         'iem_request': stage_params,
+                         'noaa_request': {'station': '8721604', 'units': 'metric', 'time_zone': 'gmt', 'datum': 'MLLW (water levels and astronomical tides only)'},
                          'trident': 'NOAA CO-OPS station 8721604; metric units; ocean levels in MLLW'},
     }
     render(document)

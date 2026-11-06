@@ -26,7 +26,7 @@ The build uses Python 3's standard library; there are no pip dependencies. Plotl
 
 ## Sources & handling
 
-- **Williams Point WIPF1:** Iowa Environmental Mesonet (IEM) HML processed **observations** for the last 14 days. Keep the gauge's own reference datum; do not compare its absolute heights with other sites until datum conversion is verified.
+- **Williams Point WIPF1:** Iowa Environmental Mesonet (IEM) HML processed **observations** for the last 14 days. Values are feet relative to MHHW, verified from the returned `Water Height (MHHW)[ft]` header. The production build rejects unknown units/datums rather than applying this label to an unverified column. Do not compare absolute heights with other sites until datum conversion is verified.
 - **Trident Pier 8721604:** NOAA CO-OPS for 7-day wind, atmospheric pressure and observed water levels (MLLW), plus predicted tides through the next 3 days. Wind and pressure use hourly sample data; ocean water levels use recent 6-minute data where available.
 - All plots display source timestamps and explicitly state that observations are not a road-flood warning. If WIPF1 fetching fails, the build fails and the previously published dashboard stays online; optional Trident sources may fail without blocking deployment and a warning is shown.
 - IEM services are third-party archives of NWS hydrological observations. HML records may be provisional, may have gaps, or may be delayed. This project is not an official NWS, NOAA, or USGS alert system.
@@ -41,4 +41,4 @@ When research is validated, expose *small, versioned, reviewed data products* fr
 
 ## Limitations / first live test
 
-This starter includes offline tests for parsing and rendering, but live HTTP response schemas and operational reliability **must be confirmed by the initial GitHub Actions run**. If the IEM WIPF1 stage column changes, update `select_stage_column` in `scripts/build.py`. If a NOAA CO-OPS product is unavailable for the station/time interval, the page displays an explicit missing-data message. Before broader publication, verify units, station datum and sample freshness against the source dashboards.
+Offline tests cover parsing, rendering, retries and failure handling. A local live build has populated Williams Point and all four NOAA feeds; deployment and browser appearance still require verification after a successful GitHub Actions run. NOAA requests explicitly select metric units and GMT, with MLLW for water levels and astronomical tides. If the IEM WIPF1 stage column changes, update `select_stage_column` in `scripts/build.py`. If a NOAA CO-OPS product is unavailable for the station/time interval, the page displays an explicit missing-data message. Before broader publication, verify units, station datum and sample freshness against the source dashboards.
