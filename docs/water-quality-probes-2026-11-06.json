@@ -1,0 +1,1140 @@
+{
+  "investigation_date_utc": "2026-11-06",
+  "purpose": "Read-only discovery snapshot, not a dashboard feed or complete historical archive",
+  "receipts": [
+    {
+      "name": "erddap-search.csv",
+      "url": "https://erddap.secoora.org/erddap/search/index.csv?page=1&itemsPerPage=100&searchFor=indian%20river%20lagoon",
+      "retrieved_utc": "2026-11-06T15:28:44Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 43273,
+      "final_url": "https://erddap.secoora.org/erddap/search/index.csv?page=1&itemsPerPage=100&searchFor=indian%20river%20lagoon",
+      "sha256": "a2bc8ca965f58b72d41bf01a7d86b0fe9b17eda0e1cb531f2d77ad44c885ae6f"
+    },
+    {
+      "name": "wqp-station.csv",
+      "url": "https://www.waterqualitydata.us/data/Station/search?siteid=21FLSJWM-IRLI13&mimeType=csv&zip=no",
+      "retrieved_utc": "2026-11-06T15:29:27Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 1274,
+      "final_url": "https://www.waterqualitydata.us/data/Station/search?siteid=21FLSJWM-IRLI13&mimeType=csv&zip=no",
+      "sha256": "756d6ee199a623d87bfc6de4026758bffebbc06bfce5633e38e6b05bb6d56113"
+    },
+    {
+      "name": "wqp-doc.html",
+      "url": "https://www.waterqualitydata.us/webservices_documentation/",
+      "retrieved_utc": "2026-11-06T15:29:28Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 66319,
+      "final_url": "https://www.waterqualitydata.us/webservices_documentation/",
+      "sha256": "01cef8e4386936aa982fad6442160c1f919d17ef9517886494a68f00c2aaf73c"
+    },
+    {
+      "name": "erddap-malabar-info.json",
+      "url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-malabar-irl-/index.json",
+      "retrieved_utc": "2026-11-06T15:29:27Z",
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "bytes": 111596,
+      "final_url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-malabar-irl-/index.json",
+      "sha256": "da332eb688b06a829ec0c9f4f0260dd00b819c6ff7a2f9ba5940273ebf4a0052"
+    },
+    {
+      "name": "win-swagger.html",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/swagger-ui/index.html",
+      "retrieved_utc": "2026-11-06T15:29:58Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 1848,
+      "final_url": "https://prodapps.dep.state.fl.us/dear-watershed/swagger-ui/index.html",
+      "sha256": "dc105dec759cc26dba903a95ee15ad1bc3afb3bb46563bcdf7d99b1241927aaf"
+    },
+    {
+      "name": "win-openapi.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/v3/api-docs",
+      "retrieved_utc": "2026-11-06T15:29:58Z",
+      "status": 200,
+      "content_type": "application/json",
+      "bytes": 7422,
+      "final_url": "https://prodapps.dep.state.fl.us/dear-watershed/v3/api-docs",
+      "sha256": "a9acdb12fe32f199f049c050e83137a293d9197348508c43c673916571e09a6d"
+    },
+    {
+      "name": "erddap-titusville-info.json",
+      "url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-titusville-i/index.json",
+      "retrieved_utc": "2026-11-06T15:30:29Z",
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "bytes": 111605,
+      "final_url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-titusville-i/index.json",
+      "sha256": "e4ace7120f50c7a2200b2dd7adbe7d54c0455cfcdd3f9f7a9e934f25ae9bdabb"
+    },
+    {
+      "name": "erddap-banana-info.json",
+      "url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-banana-river/index.json",
+      "retrieved_utc": "2026-11-06T15:30:31Z",
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "bytes": 111639,
+      "final_url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-banana-river/index.json",
+      "sha256": "8ceee4916a5cb79d11d49565ba6e214a2a8451c603f0737486090df617654bd6"
+    },
+    {
+      "name": "erddap-vero-info.json",
+      "url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-vero-beach-i/index.json",
+      "retrieved_utc": "2026-11-06T15:30:43Z",
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "bytes": 111709,
+      "final_url": "https://erddap.secoora.org/erddap/info/indian-river-lagoon-vero-beach-i/index.json",
+      "sha256": "8158ab8b181b0ca7de3118594740e8273fa55b1d09450f60ae80121951de712f"
+    },
+    {
+      "name": "erddap-titusville-week.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "retrieved_utc": "2026-11-06T15:31:37Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 8141,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "sha256": "da26270f3019a227f737d985c9417ad36c16dda87613c2925aed0d42f32c1173"
+    },
+    {
+      "name": "erddap-banana-week.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "retrieved_utc": "2026-11-06T15:31:38Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 8141,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "sha256": "da26270f3019a227f737d985c9417ad36c16dda87613c2925aed0d42f32c1173"
+    },
+    {
+      "name": "erddap-malabar-week.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "retrieved_utc": "2026-11-06T15:31:39Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 8141,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "sha256": "da26270f3019a227f737d985c9417ad36c16dda87613c2925aed0d42f32c1173"
+    },
+    {
+      "name": "erddap-vero-week.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-vero-beach-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "retrieved_utc": "2026-11-06T15:31:40Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 11869,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-vero-beach-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg,nitrate,nitrate_qc_agg,mole_concentration_of_nitrate_in_sea_water,mole_concentration_of_nitrate_in_sea_water_qc_agg,z&time%3E=2026-10-30T00%3A00%3A00Z&time%3C=2026-11-06T15%3A35%3A00Z",
+      "sha256": "9bba4af4f38f357f4ed7e3d4d104acd84a119455243465b3d946109c46b5ac07"
+    },
+    {
+      "name": "wqp-recent-3.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM-IRLI13&siteid=21FLSJWM-IRLI10&siteid=21FLSJWM-IRLI15&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:32:00Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 2278,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM-IRLI13&siteid=21FLSJWM-IRLI10&siteid=21FLSJWM-IRLI15&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "f7c48f12a21935d263614b5c9e3d6a7793a3c82242c0383752362c5c0e93aa1c"
+    },
+    {
+      "name": "wqp-irli13-all-nutrients.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM-IRLI13&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:32:00Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 910170,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM-IRLI13&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "15cf80a150320a6659ff7e21e479702b6018e796c279324aecfb35b0f9fb792a"
+    },
+    {
+      "name": "win-latest-2026.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2026-01-01&ActivityStartDateTo+%28%3C%3D%29=2026-11-06&Organization+ID=21FLSJWM&page=0&size=1&sort=activityStartDate%2CDESC",
+      "retrieved_utc": "2026-11-06T15:31:33Z",
+      "error": "The read operation timed out"
+    },
+    {
+      "name": "win-oct-small.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom%20%28%3E%3D%29=2026-10-01&ActivityStartDateTo%20%28%3C%3D%29=2026-10-07&Organization%20ID=21FLSJWM&page=0&size=100",
+      "retrieved_utc": "2026-11-06T15:33:13Z",
+      "error": "HTTP Error 500: Internal Server Error"
+    },
+    {
+      "name": "wqp-nearby-recent-stations.csv",
+      "url": "https://www.waterqualitydata.us/data/Station/search?lat=28.42&long=-80.75&within=10&startDateLo=01-01-2025&characteristicType=Nutrient&mimeType=csv&zip=no",
+      "retrieved_utc": "2026-11-06T15:33:57Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 4481,
+      "final_url": "https://www.waterqualitydata.us/data/Station/search?lat=28.42&long=-80.75&within=10&startDateLo=01-01-2025&characteristicType=Nutrient&mimeType=csv&zip=no",
+      "sha256": "c74b06c46cbb0256e495d4f6bffd5ba43c0779084038ede6ec1661a75d481fd9"
+    },
+    {
+      "name": "erddap-titusville-sea_water_practical_salinity-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:02Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 117,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "9ec043d503474292380a5768bc7b3b0a9aa9d0284021bc8ae11a2eae0ec7e371"
+    },
+    {
+      "name": "erddap-titusville-nitrate-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:06Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 70,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-titusville-i.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "800a638fe16c97fa55006cd32a140c15d606a1bf6019b931e9a0fd67f66f20ee"
+    },
+    {
+      "name": "erddap-banana-sea_water_practical_salinity-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:08Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 117,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "56864a2b823a9adea6f3b8ecc0d75a92a1c65cd337d7e6128cdcef6f59b569a2"
+    },
+    {
+      "name": "erddap-banana-nitrate-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:09Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 71,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-banana-river.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "0421b4e3feab13d2166070a9b22cede19a2d3033806efa6166b61611b56376e4"
+    },
+    {
+      "name": "erddap-malabar-sea_water_practical_salinity-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:56Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 117,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,sea_water_practical_salinity,sea_water_practical_salinity_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&sea_water_practical_salinity%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "3b6532df0a5dfc0fbcfe044a903947f177626ad7dd0f175bd43c48dbcb6858e0"
+    },
+    {
+      "name": "erddap-malabar-nitrate-latest.csv",
+      "url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "retrieved_utc": "2026-11-06T15:34:57Z",
+      "status": 200,
+      "content_type": "text/csv;charset=ISO-8859-1",
+      "bytes": 76,
+      "final_url": "https://erddap.secoora.org/erddap/tabledap/indian-river-lagoon-malabar-irl-.csv?time,nitrate,nitrate_qc_agg&time%3E=2022-01-01T00%3A00%3A00Z&nitrate%21=NaN&orderByMax%28%22time%22%29",
+      "sha256": "103335e16451ce86be9b212c99f23d84fb012e8015bc3f655a8c21cf8e75bdf6"
+    },
+    {
+      "name": "wqp-current-stations.csv",
+      "url": "https://www.waterqualitydata.us/data/Station/search?organization=21FLSJWM_WQX&lat=28.42&long=-80.75&within=15&mimeType=csv&zip=no",
+      "retrieved_utc": "2026-11-06T15:35:04Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 52757,
+      "final_url": "https://www.waterqualitydata.us/data/Station/search?organization=21FLSJWM_WQX&lat=28.42&long=-80.75&within=15&mimeType=csv&zip=no",
+      "sha256": "7a241085a03e230bbd4ff71326560bfd5414cc98d93a59244ba491f2b603b20e"
+    },
+    {
+      "name": "wqp-irli13-current-results.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44916&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:35:04Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 149223,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44916&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "cd58ae5434df3b6471903e390d35ac2c9f2b745650147fce778b438ca2a5a82d"
+    },
+    {
+      "name": "wqp-irli10-current-results.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44913&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:35:54Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 2278,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44913&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "f7c48f12a21935d263614b5c9e3d6a7793a3c82242c0383752362c5c0e93aa1c"
+    },
+    {
+      "name": "wqp-irli15-current-results.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:35:54Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 2278,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "f7c48f12a21935d263614b5c9e3d6a7793a3c82242c0383752362c5c0e93aa1c"
+    },
+    {
+      "name": "wqp-irli13-nutrient-metadata.csv",
+      "url": "https://www.waterqualitydata.us/data/Station/search?siteid=21FLSJWM_WQX-44916&mimeType=csv&zip=no",
+      "retrieved_utc": "2026-11-06T15:35:54Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 1273,
+      "final_url": "https://www.waterqualitydata.us/data/Station/search?siteid=21FLSJWM_WQX-44916&mimeType=csv&zip=no",
+      "sha256": "7187eb9cc773a4795f676eec989ff9c827047f104bc79fae6ea21a165d718b1d"
+    },
+    {
+      "name": "wqp-irli10-2024-results.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44913&startDateLo=01-01-2024&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:36:39Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 104444,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44913&startDateLo=01-01-2024&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "c946dbbb249622e73fbdfc1ddc52726c5cb457074b4984795e9670930d5d1250"
+    },
+    {
+      "name": "wqp-irli15-2024-results.csv",
+      "url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2024&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:36:40Z",
+      "status": 200,
+      "content_type": "text/csv;charset=UTF-8",
+      "bytes": 104443,
+      "final_url": "https://www.waterqualitydata.us/data/Result/search?siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2024&characteristicType=Nutrient&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "sha256": "50b8e421f6eef3af7420740ca50df499ec9e9c1604537e120f54efe04e11f517"
+    },
+    {
+      "name": "aq-salinity-utc-grid.json",
+      "url": "https://secure.sjrwmd.com/aqportal/Data/DatasetGrid?dataset=4002&sort=TimeStamp-desc&page=1&pageSize=48&group=&filter=&interval=Latest&timezone=0&date=2026-11-06&endDate=&calendar=1&alldata=false&virtual=true",
+      "retrieved_utc": "2026-11-06T15:38:00Z",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 14308,
+      "final_url": "https://secure.sjrwmd.com/aqportal/Data/DatasetGrid?dataset=4002&sort=TimeStamp-desc&page=1&pageSize=48&group=&filter=&interval=Latest&timezone=0&date=2026-11-06&endDate=&calendar=1&alldata=false&virtual=true",
+      "sha256": "d3c67257a702307fe09776b4d26f39b3702a173746477154256c8a03f6b62a91"
+    },
+    {
+      "name": "aq-irli13-datasets.json",
+      "url": "https://secure.sjrwmd.com/aqportal/Data/DataSets?locationid=94",
+      "retrieved_utc": "2026-11-06T15:38:00Z",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 13527,
+      "final_url": "https://secure.sjrwmd.com/aqportal/Data/DataSets?locationid=94",
+      "sha256": "1dba3cbc59df8ade6e3545572f05972dd7d47f451344a374bd8091e04fd552ff"
+    },
+    {
+      "name": "wqx3-irli13-current.csv",
+      "url": "https://www.waterqualitydata.us/wqx3/Result/search?siteid=21FLSJWM_WQX-44916&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=resultPhysChem",
+      "retrieved_utc": "2026-11-06T15:42:32Z",
+      "error": "HTTP Error 400: Bad Request"
+    },
+    {
+      "name": "win-known-day.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=10&sort=resultKey%2CASC",
+      "retrieved_utc": "2026-11-06T15:42:33Z",
+      "status": 200,
+      "content_type": "application/json",
+      "bytes": 28951,
+      "final_url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=10&sort=resultKey%2CASC",
+      "sha256": "dc36d3ba250092742885223f4edffb6d99dbd6c5cf27efb56fe9721b8e45b40c"
+    },
+    {
+      "name": "win-station-sorted-day.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=100&sort=monitoringLocId%2CASC",
+      "retrieved_utc": "2026-11-06T15:43:59Z",
+      "status": 200,
+      "content_type": "application/json",
+      "bytes": 287533,
+      "final_url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=100&sort=monitoringLocId%2CASC",
+      "sha256": "31821d3c3267afba92537a0d6d5cebd4bb4b3a2af87c3de72a2ce8523439a227"
+    },
+    {
+      "name": "aq-stdlib-export.zip",
+      "url": "https://secure.sjrwmd.com/aqportal/Export/DataSet?DataSet=Salinity.YSI_Calc%4037375724&Calendar=CALENDARYEAR&DateRange=Days7&UnitID=240&Conversion=Instantaneous&IntervalPoints=PointsAsRecorded&ApprovalLevels=True&Step=1&ExportFormat=csv&Compressed=true&RoundData=False&GradeCodes=True&InterpolationTypes=True&Timezone=0",
+      "access_method": "Public export token POST then download GET; ephemeral token omitted",
+      "retrieved_utc": "2026-11-06T15:44:22.239302+00:00",
+      "status": 200,
+      "content_type": "application/zip",
+      "bytes": 2809,
+      "sha256": "26f834c95ca592ddb774ef6a2ea25e4462bd102fab63b9c9fef553188c2582a4"
+    },
+    {
+      "name": "win-single-day.json",
+      "url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=1500&sort=resultKey%2CASC",
+      "retrieved_utc": "2026-11-06T15:45:02Z",
+      "status": 200,
+      "content_type": "application/json",
+      "bytes": 1460433,
+      "final_url": "https://prodapps.dep.state.fl.us/dear-watershed/result-activities?ActivityStartDateFrom+%28%3E%3D%29=2025-04-10&ActivityStartDateTo+%28%3C%3D%29=2025-04-10&Organization+ID=21FLSJWM&page=0&size=1500&sort=resultKey%2CASC",
+      "sha256": "f9722ce6e896048e9a1f25baf47216623bf6c05f0cc44fcff91065addb9a343f"
+    },
+    {
+      "name": "wqx3-three-stations.csv",
+      "url": "https://www.waterqualitydata.us/wqx3/Result/search?siteid=21FLSJWM_WQX-44916&siteid=21FLSJWM_WQX-44913&siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=fullPhysChem",
+      "retrieved_utc": "2026-11-06T15:46:06Z",
+      "status": 200,
+      "content_type": "text/plain",
+      "bytes": 184036,
+      "final_url": "https://www.waterqualitydata.us/wqx3/Result/search?siteid=21FLSJWM_WQX-44916&siteid=21FLSJWM_WQX-44913&siteid=21FLSJWM_WQX-44918&startDateLo=01-01-2025&mimeType=csv&zip=no&dataProfile=fullPhysChem",
+      "sha256": "d3f3d10f279b3f5d15c72c5df421f90ddf09d0e622d483220e8d0dffc7f0ce81"
+    }
+  ],
+  "aquarius": {
+    "dataset": "Salinity.YSI_Calc@37375724",
+    "metadata": {
+      "StartTime": "2017-04-24T13:00:00",
+      "EndTime": "2026-11-06T10:00:00",
+      "Timezone": -5.0,
+      "LocationIdentifier": "37375724",
+      "LocationName": "IRLI13 - IRLI13 IRL S SR528",
+      "ParameterName": "Salinity",
+      "Id": "YSI_Calc",
+      "IDNumber": 4002,
+      "DisplayText": "Salinity.YSI_Calc@37375724",
+      "Subtext": "Salinity",
+      "WidgetVariables": {
+        "Identifier": "Salinity.YSI_Calc@37375724",
+        "Label": "YSI_Calc",
+        "LocationIdentifier": "37375724",
+        "LocationName": "IRLI13 - IRLI13 IRL S SR528",
+        "ParameterIdentifier": "Salinity",
+        "ParameterName": "Salinity"
+      },
+      "ParameterRangeId": 0,
+      "record_start_utc": "2017-04-24T18:00:00Z",
+      "record_end_utc": "2026-11-06T15:00:00Z"
+    },
+    "csv_header": [
+      "#Data Set Export - Salinity.YSI_Calc@37375724,,,,",
+      "Timestamp (UTC),Value (ppt),Grade Code,Approval Level,Interpolation Type"
+    ],
+    "export_row_count": 184,
+    "export_examples": [
+      {
+        "Timestamp (UTC)": "2026-10-30 00:00:00",
+        "Value (ppt)": "20.242730214992548",
+        "Grade Code": "0",
+        "Approval Level": "800",
+        "Interpolation Type": "1",
+        "sample_timestamp_utc": "2026-10-30T00:00:00Z"
+      },
+      {
+        "Timestamp (UTC)": "2026-11-06 15:00:00",
+        "Value (ppt)": "18.265299042390062",
+        "Grade Code": "0",
+        "Approval Level": "800",
+        "Interpolation Type": "1",
+        "sample_timestamp_utc": "2026-11-06T15:00:00Z"
+      }
+    ],
+    "utc_grid_examples": [
+      {
+        "DisplayValue": "18.3",
+        "InterpolationType": "1 - Inst. Values",
+        "Grade": "0 - PROV",
+        "GradeColour": "#00FFFF",
+        "GradeTextColour": "#ff0000",
+        "Approval": "800 - Provisional",
+        "ApprovalColour": "#DC143C",
+        "ApprovalTextColour": "#23ebc3",
+        "Comment": "",
+        "TimeStamp": "2026-11-06T15:00:00Z",
+        "Value": 18.265299042390062
+      },
+      {
+        "DisplayValue": "18.3",
+        "InterpolationType": "1 - Inst. Values",
+        "Grade": "0 - PROV",
+        "GradeColour": "#00FFFF",
+        "GradeTextColour": "#ff0000",
+        "Approval": "800 - Provisional",
+        "ApprovalColour": "#DC143C",
+        "ApprovalTextColour": "#23ebc3",
+        "Comment": "",
+        "TimeStamp": "2026-11-06T14:00:00Z",
+        "Value": 18.29667636709229
+      }
+    ],
+    "utc_grid_export_comparisons": 48,
+    "maximum_numeric_difference_ppt": 3.552713678800501e-15,
+    "grade_approval_counts": {
+      "0_PROV__800_Provisional": 184
+    }
+  },
+  "wqp": {
+    "irli13_rows_since_2025": 142,
+    "irli13_dates": [
+      "2025-01-13",
+      "2025-02-13",
+      "2025-03-12",
+      "2025-04-10"
+    ],
+    "wqx3_rows_since_2025_three_station_query": 142,
+    "selected_irli13_results": [
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-001F",
+        "ActivityTypeCode": "Field Msr/Obs",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:42:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.43",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088353486",
+        "CharacteristicName": "Salinity",
+        "ResultSampleFractionText": "",
+        "MethodSpeciationName": "",
+        "ResultMeasureValue": "24.05",
+        "ResultMeasure/MeasureUnitCode": "ppth",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "",
+        "ResultAnalyticalMethod/MethodIdentifier": "FDEP FT1300",
+        "DetectionQuantitationLimitTypeName": "",
+        "DetectionQuantitationLimitMeasure/MeasureValue": "",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-001",
+        "ActivityTypeCode": "Sample-Routine",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:42:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.43",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088595373",
+        "CharacteristicName": "Total Kjeldahl nitrogen (Organic N & NH3)",
+        "ResultSampleFractionText": "Dissolved",
+        "MethodSpeciationName": "as N",
+        "ResultMeasureValue": "0.95",
+        "ResultMeasure/MeasureUnitCode": "mg/L",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "",
+        "ResultAnalyticalMethod/MethodIdentifier": "351.2",
+        "DetectionQuantitationLimitTypeName": "Practical Quantitation Limit",
+        "DetectionQuantitationLimitMeasure/MeasureValue": ".15",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "mg/L",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-001",
+        "ActivityTypeCode": "Sample-Routine",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:42:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.43",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088595374",
+        "CharacteristicName": "Nitrate + Nitrite",
+        "ResultSampleFractionText": "Dissolved",
+        "MethodSpeciationName": "as N",
+        "ResultMeasureValue": "0.0351",
+        "ResultMeasure/MeasureUnitCode": "mg/L",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "**I****I**",
+        "ResultAnalyticalMethod/MethodIdentifier": "353.2",
+        "DetectionQuantitationLimitTypeName": "Practical Quantitation Limit",
+        "DetectionQuantitationLimitMeasure/MeasureValue": ".04",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "mg/L",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-001",
+        "ActivityTypeCode": "Sample-Routine",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:42:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.43",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088595362",
+        "CharacteristicName": "Total Kjeldahl nitrogen (Organic N & NH3)",
+        "ResultSampleFractionText": "Total",
+        "MethodSpeciationName": "as N",
+        "ResultMeasureValue": "1.187",
+        "ResultMeasure/MeasureUnitCode": "mg/L",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "",
+        "ResultAnalyticalMethod/MethodIdentifier": "351.2",
+        "DetectionQuantitationLimitTypeName": "Practical Quantitation Limit",
+        "DetectionQuantitationLimitMeasure/MeasureValue": ".15",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "mg/L",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-003F",
+        "ActivityTypeCode": "Field Msr/Obs",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:52:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.44",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088353548",
+        "CharacteristicName": "Salinity",
+        "ResultSampleFractionText": "",
+        "MethodSpeciationName": "",
+        "ResultMeasureValue": "24.04",
+        "ResultMeasure/MeasureUnitCode": "ppth",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "",
+        "ResultAnalyticalMethod/MethodIdentifier": "FDEP FT1300",
+        "DetectionQuantitationLimitTypeName": "",
+        "DetectionQuantitationLimitMeasure/MeasureValue": "",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "",
+        "sample_timestamp_utc": "2025-04-10T15:52:00Z"
+      },
+      {
+        "MonitoringLocationIdentifier": "21FLSJWM_WQX-44916",
+        "ActivityIdentifier": "21FLSJWM_WQX-L20250571-001",
+        "ActivityTypeCode": "Sample-Routine",
+        "ActivityMediaName": "Water",
+        "ActivityStartDate": "2025-04-10",
+        "ActivityStartTime/Time": "11:42:00",
+        "ActivityStartTime/TimeZoneCode": "EDT",
+        "ActivityDepthHeightMeasure/MeasureValue": "1.43",
+        "ActivityDepthHeightMeasure/MeasureUnitCode": "m",
+        "ResultIdentifier": "STORET-1088595363",
+        "CharacteristicName": "Ammonia-nitrogen",
+        "ResultSampleFractionText": "Dissolved",
+        "MethodSpeciationName": "as N",
+        "ResultMeasureValue": "0.091841",
+        "ResultMeasure/MeasureUnitCode": "mg/L",
+        "MeasureQualifierCode": "",
+        "ResultDetectionConditionText": "",
+        "ResultStatusIdentifier": "Final",
+        "ResultCommentText": "",
+        "ResultAnalyticalMethod/MethodIdentifier": "4500-NH3(G)",
+        "DetectionQuantitationLimitTypeName": "Practical Quantitation Limit",
+        "DetectionQuantitationLimitMeasure/MeasureValue": ".02",
+        "DetectionQuantitationLimitMeasure/MeasureUnitCode": "mg/L",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      }
+    ],
+    "irli10_2024_nutrient_rows": 84,
+    "irli15_2024_nutrient_rows": 84
+  },
+  "win": {
+    "known_day_agency_total_results": 1128,
+    "requested_page_size": 1500,
+    "returned_page_size": 500,
+    "returned_page_number": 0,
+    "returned_total_pages": 3,
+    "irli13_rows_in_first_page": 35,
+    "selected_irli13_results": [
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-001F",
+        "activityStartDate": "04/10/2025 11:42:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.43,
+        "depthUnit": "m",
+        "resultKey": 18885049,
+        "depAnalytePrimaryName": "Salinity",
+        "depResultValue": 24.05,
+        "depResultUnit": "PSU",
+        "depMdl": null,
+        "depPql": null,
+        "valueQualifier": null,
+        "sampleFraction": null,
+        "analysisMethodName": "FDEP FT1300",
+        "resultCommentText": null,
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-001",
+        "activityStartDate": "04/10/2025 11:42:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.43,
+        "depthUnit": "m",
+        "resultKey": 18885052,
+        "depAnalytePrimaryName": "Ammonia (N)",
+        "depResultValue": 0.091841,
+        "depResultUnit": "mg/L",
+        "depMdl": 0.005,
+        "depPql": 0.02,
+        "valueQualifier": null,
+        "sampleFraction": "Dissolved",
+        "analysisMethodName": "SM 4500-NH3 G",
+        "resultCommentText": null,
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-001",
+        "activityStartDate": "04/10/2025 11:42:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.43,
+        "depthUnit": "m",
+        "resultKey": 18885053,
+        "depAnalytePrimaryName": "Nitrogen- Total Kjeldahl",
+        "depResultValue": 0.95,
+        "depResultUnit": "mg/L",
+        "depMdl": 0.05,
+        "depPql": 0.15,
+        "valueQualifier": null,
+        "sampleFraction": "Dissolved",
+        "analysisMethodName": "EPA 351.2",
+        "resultCommentText": null,
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-001",
+        "activityStartDate": "04/10/2025 11:42:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.43,
+        "depthUnit": "m",
+        "resultKey": 18885054,
+        "depAnalytePrimaryName": "Nitrogen- Total Kjeldahl",
+        "depResultValue": 1.187,
+        "depResultUnit": "mg/L",
+        "depMdl": 0.05,
+        "depPql": 0.15,
+        "valueQualifier": null,
+        "sampleFraction": "Total",
+        "analysisMethodName": "EPA 351.2",
+        "resultCommentText": null,
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-001",
+        "activityStartDate": "04/10/2025 11:42:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.43,
+        "depthUnit": "m",
+        "resultKey": 18885055,
+        "depAnalytePrimaryName": "Nitrate-Nitrite (N)",
+        "depResultValue": 0.0351,
+        "depResultUnit": "mg/L",
+        "depMdl": 0.01,
+        "depPql": 0.04,
+        "valueQualifier": "I",
+        "sampleFraction": "Dissolved",
+        "analysisMethodName": "EPA 353.2 (48 hour hold time)",
+        "resultCommentText": "**I**",
+        "sample_timestamp_utc": "2025-04-10T15:42:00Z"
+      },
+      {
+        "monitoringLocId": "44916",
+        "monitoringLocationName": "IRLI13",
+        "activityId": "L20250571-003F",
+        "activityStartDate": "04/10/2025 11:52:00",
+        "activityTimeZoneShortName": "EDT",
+        "activityDepth": 1.44,
+        "depthUnit": "m",
+        "resultKey": 18885095,
+        "depAnalytePrimaryName": "Salinity",
+        "depResultValue": 24.04,
+        "depResultUnit": "PSU",
+        "depMdl": null,
+        "depPql": null,
+        "valueQualifier": null,
+        "sampleFraction": null,
+        "analysisMethodName": "FDEP FT1300",
+        "resultCommentText": null,
+        "sample_timestamp_utc": "2025-04-10T15:52:00Z"
+      }
+    ]
+  },
+  "fau": {
+    "metadata": {
+      "titusville": {
+        "global": {
+          "title": "Indian River Lagoon - Titusville (IRL-TS)",
+          "institution": "Florida Atlantic University (FAU)",
+          "time_coverage_start": "2022-01-01T00:00:00Z",
+          "time_coverage_end": "2026-11-06T11:00:00Z",
+          "geospatial_lat_min": "28.5985",
+          "geospatial_lon_min": "-80.7913"
+        },
+        "variables": {
+          "sea_water_practical_salinity": {
+            "long_name": "Salinity",
+            "standard_name": "sea_water_practical_salinity",
+            "units": "1e-3",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "sea_water_practical_salinity_qc_agg": {
+            "long_name": "Salinity QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "nitrate": {
+            "long_name": "Nitrate Concentration (NO3)",
+            "standard_name": "nitrate",
+            "units": "mg.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "nitrate_qc_agg": {
+            "long_name": "Nitrate Concentration (NO3) QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "mole_concentration_of_nitrate_in_sea_water": {
+            "long_name": "Nitrate Molarity (NO3)",
+            "standard_name": "mole_concentration_of_nitrate_in_sea_water",
+            "units": "micromol.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          }
+        }
+      },
+      "banana": {
+        "global": {
+          "title": "Indian River Lagoon - Banana River (IRL-BR)",
+          "institution": "Florida Atlantic University (FAU)",
+          "time_coverage_start": "2022-01-01T00:00:00Z",
+          "time_coverage_end": "2026-11-06T11:00:00Z",
+          "geospatial_lat_min": "28.4549",
+          "geospatial_lon_min": "-80.6387"
+        },
+        "variables": {
+          "sea_water_practical_salinity": {
+            "long_name": "Salinity",
+            "standard_name": "sea_water_practical_salinity",
+            "units": "1e-3",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "sea_water_practical_salinity_qc_agg": {
+            "long_name": "Salinity QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "nitrate": {
+            "long_name": "Nitrate Concentration (NO3)",
+            "standard_name": "nitrate",
+            "units": "mg.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "nitrate_qc_agg": {
+            "long_name": "Nitrate Concentration (NO3) QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "mole_concentration_of_nitrate_in_sea_water": {
+            "long_name": "Nitrate Molarity (NO3)",
+            "standard_name": "mole_concentration_of_nitrate_in_sea_water",
+            "units": "micromol.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          }
+        }
+      },
+      "malabar": {
+        "global": {
+          "title": "Indian River Lagoon - Malabar (IRL-MB)",
+          "institution": "Florida Atlantic University (FAU)",
+          "time_coverage_start": "2022-01-01T00:00:00Z",
+          "time_coverage_end": "2026-11-06T11:00:00Z",
+          "geospatial_lat_min": "27.9751",
+          "geospatial_lon_min": "-80.5368"
+        },
+        "variables": {
+          "sea_water_practical_salinity": {
+            "long_name": "Salinity",
+            "standard_name": "sea_water_practical_salinity",
+            "units": "1e-3",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "sea_water_practical_salinity_qc_agg": {
+            "long_name": "Salinity QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "nitrate": {
+            "long_name": "Nitrate Concentration (NO3)",
+            "standard_name": "nitrate",
+            "units": "mg.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "nitrate_qc_agg": {
+            "long_name": "Nitrate Concentration (NO3) QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "mole_concentration_of_nitrate_in_sea_water": {
+            "long_name": "Nitrate Molarity (NO3)",
+            "standard_name": "mole_concentration_of_nitrate_in_sea_water",
+            "units": "micromol.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          }
+        }
+      },
+      "vero": {
+        "global": {
+          "title": "Indian River Lagoon - Vero Beach (IRL-VB)",
+          "institution": "Florida Atlantic University (FAU)",
+          "time_coverage_start": "2014-12-17T05:00:00Z",
+          "time_coverage_end": "2026-11-06T15:00:00Z",
+          "geospatial_lat_min": "27.590117",
+          "geospatial_lon_min": "-80.355258"
+        },
+        "variables": {
+          "sea_water_practical_salinity": {
+            "long_name": "Salinity",
+            "standard_name": "sea_water_practical_salinity",
+            "units": "1e-3",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "sea_water_practical_salinity_qc_agg": {
+            "long_name": "Salinity QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "nitrate": {
+            "long_name": "Nitrate Concentration (NO3)",
+            "standard_name": "nitrate",
+            "units": "mg.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          },
+          "nitrate_qc_agg": {
+            "long_name": "Nitrate Concentration (NO3) QARTOD Aggregate Quality Flag",
+            "standard_name": "aggregate_quality_flag",
+            "units": null,
+            "_FillValue": "-127",
+            "flag_values": "1, 2, 3, 4, 9",
+            "flag_meanings": "PASS NOT_EVALUATED SUSPECT FAIL MISSING"
+          },
+          "mole_concentration_of_nitrate_in_sea_water": {
+            "long_name": "Nitrate Molarity (NO3)",
+            "standard_name": "mole_concentration_of_nitrate_in_sea_water",
+            "units": "micromol.L-1",
+            "_FillValue": "-9999.0",
+            "flag_values": null,
+            "flag_meanings": null
+          }
+        }
+      }
+    },
+    "week": {
+      "titusville": {
+        "row_count": 184,
+        "first_time": "2026-10-30T00:00:00Z",
+        "last_time": "2026-11-06T15:00:00Z",
+        "sea_water_practical_salinity": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        },
+        "nitrate": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        }
+      },
+      "banana": {
+        "row_count": 184,
+        "first_time": "2026-10-30T00:00:00Z",
+        "last_time": "2026-11-06T15:00:00Z",
+        "sea_water_practical_salinity": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        },
+        "nitrate": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        }
+      },
+      "malabar": {
+        "row_count": 184,
+        "first_time": "2026-10-30T00:00:00Z",
+        "last_time": "2026-11-06T15:00:00Z",
+        "sea_water_practical_salinity": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        },
+        "nitrate": {
+          "numeric_count": 0,
+          "qc_counts": {},
+          "latest_numeric_row": null,
+          "latest_pass_row": null
+        }
+      },
+      "vero": {
+        "row_count": 184,
+        "first_time": "2026-10-30T00:00:00Z",
+        "last_time": "2026-11-06T15:00:00Z",
+        "sea_water_practical_salinity": {
+          "numeric_count": 100,
+          "qc_counts": {
+            "1": 35,
+            "2": 65
+          },
+          "latest_numeric_row": {
+            "time": "2026-11-03T03:00:00Z",
+            "sea_water_practical_salinity": "16.0943937897",
+            "sea_water_practical_salinity_qc_agg": "2",
+            "nitrate": "0.17524",
+            "nitrate_qc_agg": "2",
+            "mole_concentration_of_nitrate_in_sea_water": "12.5106666667",
+            "mole_concentration_of_nitrate_in_sea_water_qc_agg": "2",
+            "z": "0.0"
+          },
+          "latest_pass_row": {
+            "time": "2026-10-31T10:00:00Z",
+            "sea_water_practical_salinity": "20.2080975187",
+            "sea_water_practical_salinity_qc_agg": "1",
+            "nitrate": "0.1135666667",
+            "nitrate_qc_agg": "1",
+            "mole_concentration_of_nitrate_in_sea_water": "8.108",
+            "mole_concentration_of_nitrate_in_sea_water_qc_agg": "1",
+            "z": "0.0"
+          }
+        },
+        "nitrate": {
+          "numeric_count": 177,
+          "qc_counts": {
+            "1": 111,
+            "2": 66
+          },
+          "latest_numeric_row": {
+            "time": "2026-11-06T08:00:00Z",
+            "sea_water_practical_salinity": "NaN",
+            "sea_water_practical_salinity_qc_agg": "2",
+            "nitrate": "0.1387357143",
+            "nitrate_qc_agg": "2",
+            "mole_concentration_of_nitrate_in_sea_water": "9.9042857143",
+            "mole_concentration_of_nitrate_in_sea_water_qc_agg": "2",
+            "z": "0.0"
+          },
+          "latest_pass_row": {
+            "time": "2026-11-06T07:00:00Z",
+            "sea_water_practical_salinity": "NaN",
+            "sea_water_practical_salinity_qc_agg": "2",
+            "nitrate": "0.13436",
+            "nitrate_qc_agg": "1",
+            "mole_concentration_of_nitrate_in_sea_water": "9.5933333333",
+            "mole_concentration_of_nitrate_in_sea_water_qc_agg": "1",
+            "z": "0.0"
+          }
+        }
+      }
+    },
+    "latest_numeric_queries": {
+      "titusville": {
+        "sea_water_practical_salinity": [
+          {
+            "time": "2026-06-29T18:00:00Z",
+            "sea_water_practical_salinity": "27.3727744847",
+            "sea_water_practical_salinity_qc_agg": "2"
+          }
+        ],
+        "nitrate": [
+          {
+            "time": "2026-07-01T14:00:00Z",
+            "nitrate": "0.5621",
+            "nitrate_qc_agg": "2"
+          }
+        ]
+      },
+      "banana": {
+        "sea_water_practical_salinity": [
+          {
+            "time": "2026-07-01T16:00:00Z",
+            "sea_water_practical_salinity": "22.6564997403",
+            "sea_water_practical_salinity_qc_agg": "2"
+          }
+        ],
+        "nitrate": [
+          {
+            "time": "2026-07-01T16:00:00Z",
+            "nitrate": "0.18024",
+            "nitrate_qc_agg": "2"
+          }
+        ]
+      },
+      "malabar": {
+        "sea_water_practical_salinity": [
+          {
+            "time": "2025-07-08T19:00:00Z",
+            "sea_water_practical_salinity": "34.6496597791",
+            "sea_water_practical_salinity_qc_agg": "1"
+          }
+        ],
+        "nitrate": [
+          {
+            "time": "2023-06-18T02:00:00Z",
+            "nitrate": "0.1984833333",
+            "nitrate_qc_agg": "1"
+          }
+        ]
+      }
+    }
+  }
+}
