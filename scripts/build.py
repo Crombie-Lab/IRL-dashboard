@@ -294,6 +294,7 @@ def render(payload):
     shutil.copytree(ROOT / 'assets', SITE / 'assets', dirs_exist_ok=True)
     (SITE / '.nojekyll').touch()
     (SITE / 'data.json').write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding='utf-8')
+    (SITE / 'update.json').write_text(json.dumps({'built_utc': payload['built_utc']}), encoding='utf-8')
 
 
 def run():

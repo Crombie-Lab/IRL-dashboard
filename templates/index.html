@@ -99,7 +99,6 @@ document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inc
 document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood · measured ${fmtEastern(deepRoad.t)}`:'No manual depth measurement available.';
 document.getElementById('manual-caption').textContent=manual.length?`Road-depth dots use inches on the right, a separate scale from the lagoon. Last measured ${fmtEastern(last(manual).t)}.`:'No road-depth readings.';
 document.getElementById('refresh').textContent=`Updated ${built}`;
-if(ageHours(latest?.t)>3){document.getElementById('status-dot').classList.add('stale');}
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
 const ocean=last(dat.ocean);
@@ -110,6 +109,7 @@ document.getElementById('wind-now').textContent=w?`${w.speed.toFixed(1)} m/s ${d
 document.getElementById('wind-time').textContent=w?`${w.direction==null?'Direction unavailable':'From '+direction(w.direction)} · ${fmt(w.t)}`:'No recent wind observation';
 document.getElementById('pressure-now').textContent=p?`${p.v.toFixed(1)} hPa`:'Unavailable';
 document.getElementById('pressure-time').textContent=p?'Observed '+fmt(p.t):'No recent pressure observation';
+function refreshStatus(){
 const notices=[...(payload.warnings||[])];
 for(const [name,series] of [['Williams Point',stage],['Trident wind',dat.wind],['Trident pressure',dat.pressure],['Trident ocean observations',dat.ocean]]){
  const record=last(series);
@@ -124,8 +124,35 @@ for(const key of ['wind','gust','direction','rain']){
  if(forecast.updated_utc&&!(forecast[key]||[]).some(r=>r.v!=null&&Date.parse(r.end)>Date.now())) notices.push(`NOAA forecast ${key}: no valid future values.`);
 }
 document.getElementById('forecast-time').textContent=forecast.updated_utc?`NOAA / NWS · updated ${fmt(forecast.updated_utc)}`:'NOAA forecast unavailable this update.';
+document.getElementById('warnings').replaceChildren();
 for(const message of notices){const el=document.createElement('div');el.className='warning';el.textContent=message;document.getElementById('warnings').appendChild(el);}
-if(notices.length) document.getElementById('status-dot').classList.add('stale');
+document.getElementById('status-dot').classList.toggle('stale',notices.length>0);
+}
+refreshStatus();
+setInterval(refreshStatus,60000);
+// Detect new published snapshots cheaply, including when returning to an open tab.
+const pageUrl=new URL(window.location.href);
+if(pageUrl.searchParams.has('_updated')){pageUrl.searchParams.delete('_updated');history.replaceState(null,'',pageUrl.href);}
+let checkingUpdate=false;
+async function checkForUpdate(){
+ refreshStatus();
+ if(document.hidden||checkingUpdate) return;
+ checkingUpdate=true;
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),10000);
+ try{
+  const response=await fetch('update.json',{cache:'no-store',signal:controller.signal});
+  if(!response.ok) return;
+  const update=await response.json();
+  if(Date.parse(update.built_utc)>Date.parse(payload.built_utc)){
+   const next=new URL(window.location.href);next.searchParams.set('_updated',update.built_utc);
+   window.location.replace(next.href);
+  }
+ }catch{}finally{clearTimeout(timeout);checkingUpdate=false;}
+}
+setInterval(checkForUpdate,300000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) checkForUpdate();});
+checkForUpdate();
 const config={responsive:true,displayModeBar:false,scrollZoom:false,doubleClick:false,showAxisDragHandles:false,showAxisRangeEntryBoxes:false};
 const initialViews=[];
 const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:60,r:60,t:10,b:65},font:{size:12,color:'#395766'},hovermode:'x unified',dragmode:'pan',xaxis:{title:'UTC',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
