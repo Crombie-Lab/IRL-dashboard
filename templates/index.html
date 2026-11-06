@@ -20,6 +20,7 @@ header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
 .metric-caption,.caption{font-size:12px;color:#647887;line-height:1.5}.status{display:flex;align-items:center;gap:8px;margin:16px 0 18px;color:#415b69;font-size:13px}
 .dot{height:10px;width:10px;border-radius:100%;display:inline-block;background:#1ca876}.dot.stale{background:#c47924}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
+.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.plot.manual-plot{height:490px}
 .plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
 .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
 .explain h2{margin-bottom:7px}.explain p{margin:7px 0 13px}.meta{font-size:13px;color:#59717e}
@@ -39,7 +40,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
  <div class="card"><div class="metric-label">Trident Pier · latest barometric pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
 </div>
 <section class="stack" aria-label="Measured observations">
- <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot"></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot manual-plot"></div><div class="plot-head"><p id="manual-caption"></p><p>Lower band: manual water depths in inches above the local road surface, measured at the road center at the deepest sampled points in the larger puddles. Colors identify locations; dashed lines align sampling times with the gauge above. Depths and gauge heights have different references. The first north-culvert reading (open circle, *) was nearby rather than at the later standard spot; the three visits do not establish a relationship with Williams Point.</p></div><details class="manual-details"><summary>Manual readings and sampling notes</summary><div class="table-scroll"><table><caption>User-reported spot measurements, transcribed from the supplied screenshot. Original times are EST; no measurement precision or instrument uncertainty was supplied.</caption><thead><tr><th scope="col">Measured (Eastern)</th><th scope="col">Location</th><th scope="col">Depth (in)</th><th scope="col">Sampling note</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
 </section>
 <section class="stack" style="margin-top:24px" aria-label="NOAA weather forecast">
@@ -53,7 +54,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <section class="card explain">
 <h2>Why does high water persist along the lagoon?</h2>
 <p>The Indian River Lagoon is a shallow, elongated estuary with limited connections to the Atlantic Ocean. Sustained winds can redistribute lagoon water and elevate levels along some shorelines. High lagoon water can also reduce the hydraulic gradient for stormwater outfalls, slowing drainage from low-lying streets and neighborhoods. Local rainfall, ground elevation, blocked or undersized drains, and tidal conditions can also contribute.</p>
-<p>These plots describe <em>water levels and weather</em>, not neighborhood-specific flood depth. They do not establish whether any street is passable. Do not drive through flooded roads.</p>
+<p>The gauge and weather plots describe regional conditions; manual markers report water depth only at the sampled road points and times. They do not establish whether any street is passable. Do not drive through flooded roads.</p>
 <h2>Data and methods</h2>
 <p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Card timestamps use your browser's time zone (shown explicitly); chart axes use UTC. Lines break across gaps exceeding 30 minutes for water levels and 90 minutes for hourly products. Stale means an observation or site build is over 3 hours old; this is a freshness indicator, not a flood threshold. NOAA weather forecasts come from the NWS grid API; wind is converted from reported km/h to m/s, precipitation remains mm over its source period, and forecast update times over 12 hours old are flagged. Data are preliminary where their providers have not completed quality control.</p>
 <p class="meta"><strong>Important:</strong> No automated flooding forecast, warning threshold, or road safety decision is provided. Check <a href="https://www.weather.gov/mlb/">NWS Melbourne</a> for official advisories. This is an independent informational project, not an official NOAA/NWS product.</p>
@@ -66,10 +67,18 @@ window.addEventListener('load', () => {
 const payload=JSON.parse(document.getElementById('model').textContent);
 const dat=payload.trident||{}; const stage=payload.williams_point||[];
 const forecast=payload.weather_forecast||{};
+const manual=payload.manual_depths||[];
 const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'Not available';
+const fmtEastern=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+for(const row of manual){
+ const tr=document.createElement('tr');
+ for(const value of [fmtEastern(row.t),row.location,String(row.depth_inches),row.notes]){const td=document.createElement('td');td.textContent=value;tr.appendChild(td);}
+ document.getElementById('manual-readings').appendChild(tr);
+}
 const last=a=>a&&a.length?a[a.length-1]:null;
 const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
 const built=fmt(payload.built_utc);const latest=last(stage);
+document.getElementById('manual-caption').textContent=manual.length?`Manual spot samples: ${manual.length} readings; latest visit ${fmtEastern(last(manual).t)}. Historical samples, not continuously monitored; zoom out to inspect older samples if outside the current view.`:'No manual depth samples available.';
 document.getElementById('refresh').textContent=`Site built ${built} · Williams Point latest ${fmt(latest?.t)}`;
 if(ageHours(latest?.t)>3){document.getElementById('status-dot').classList.add('stale');}
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
@@ -111,7 +120,21 @@ function line(arr,name,color,key='v'){
 }
 const observationEnd=Date.parse(payload.built_utc);
 const observationAxis={range:[new Date(observationEnd-7*864e5).toISOString(),new Date(observationEnd).toISOString()],autorange:false};
-draw('stageplot',[line(stage,'Williams Point','#10799d')],{xaxis:observationAxis,yaxis:{title:'Height (ft MHHW)'}});
+const manualStyles=[['briarwood_entrance','Briarwood entrance (in)','#ae642b','diamond'],['indian_river_north','IR Drive north (in)','#7955a6','circle']];
+const manualTraces=manualStyles.map(([id,name,color,symbol])=>{
+ const rows=manual.filter(r=>r.location_id===id);
+ return {x:rows.map(r=>r.t),y:rows.map(r=>r.depth_inches),yaxis:'y2',name,type:'scatter',mode:'markers+text',
+  text:rows.map(r=>`${r.depth_inches}″${r.standard_position?'':'*'}`),textposition:'top center',textfont:{color,size:11},cliponaxis:false,
+  marker:{color,size:8,symbol:rows.map(r=>r.standard_position?symbol:symbol+'-open'),line:{color,width:1.5}},
+  customdata:rows.map(r=>[fmtEastern(r.t),r.notes]),
+  hovertemplate:'%{y} in above road surface<br>%{customdata[0]}<br>%{customdata[1]}<extra>'+name+'</extra>'};
+});
+const manualGuides=[...new Set(manual.map(r=>r.t))].map(t=>({type:'line',xref:'x',x0:t,x1:t,yref:'paper',y0:0,y1:1,line:{color:'#8a9199',width:1,dash:'dash'},opacity:.35,layer:'below'}));
+draw('stageplot',[line(stage,'Williams Point','#10799d'),...manualTraces],{
+ xaxis:{...observationAxis,anchor:'free',position:0},yaxis:{title:'Height (ft MHHW)',domain:manual.length?[.43,1]:[0,1]},
+ ...(manual.length?{yaxis2:{title:'Road depth (in)',domain:[0,.29],anchor:'x',range:[0,Math.max(...manual.map(r=>r.depth_inches))*1.3||1],gridcolor:'#edf2f5',zeroline:false},shapes:manualGuides}:{}),
+ hovermode:'closest'
+});
 draw('tideplot',[line(dat.ocean,'Observed ocean','#10799d'),{...line(dat.tide,'Predicted tide','#dc8b3c'),line:{color:'#dc8b3c',dash:'dash',width:2}}],{yaxis:{title:'Height (m MLLW)'}});
 draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),line(dat.wind,'Gust','#6b92a1','gust'),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{xaxis:observationAxis,yaxis:{title:'Speed (m/s)'},yaxis2:{title:'Direction (°)',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
 draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{yaxis:{title:'hPa'}});

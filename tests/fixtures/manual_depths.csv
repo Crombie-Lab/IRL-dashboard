@@ -1,0 +1,3 @@
+observed_at,location_id,water_depth_inches,standard_position,notes
+2026-11-04T16:00:00-05:00,indian_river_north,10,false,"Not a standard location, but close."
+2026-11-04T16:00:00-05:00,briarwood_entrance,5,true,"Standard: road center in the middle of the storm drain (as close as possible; drain not easily visible)."

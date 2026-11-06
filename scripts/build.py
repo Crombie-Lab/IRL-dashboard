@@ -233,6 +233,51 @@ def nws_forecast(now):
     return forecast
 
 
+MANUAL_LOCATIONS = {
+    'briarwood_entrance': 'Briarwood Lane entrance / storm drain',
+    'indian_river_north': 'Indian River Drive / north culvert',
+}
+
+
+def parse_manual_depths(payload):
+    """Validate curated spot depths; reject bad rows instead of dropping measurements."""
+    reader = csv.DictReader(io.StringIO(payload.decode('utf-8-sig')))
+    required = {'observed_at', 'location_id', 'water_depth_inches', 'standard_position', 'notes'}
+    if not required.issubset(reader.fieldnames or []):
+        raise ValueError('Manual depth CSV missing required columns')
+    readings, seen = [], set()
+    for row in reader:
+        try:
+            original = row['observed_at']
+            stamp = datetime.fromisoformat(original.replace('Z', '+00:00'))
+            if stamp.tzinfo is None:
+                raise ValueError('Manual measurement needs an explicit timezone')
+            timestamp = stamp.astimezone(UTC).isoformat(timespec='minutes')
+            location = row['location_id']
+            if location not in MANUAL_LOCATIONS:
+                raise ValueError('Unknown manual measurement location')
+            depth = safe_float(row['water_depth_inches'])
+            if depth is None or depth < 0:
+                raise ValueError('Invalid manual water depth')
+            if row['standard_position'] not in ('true', 'false'):
+                raise ValueError('Invalid manual position flag')
+            if not isinstance(row['notes'], str) or not row['notes'].strip():
+                raise ValueError('Manual measurement needs a method note')
+            key = timestamp, location
+            if key in seen:
+                raise ValueError('Duplicate manual measurement time/location')
+            seen.add(key)
+            readings.append({'t': timestamp, 'original_time': original, 'location_id': location,
+                             'location': MANUAL_LOCATIONS[location], 'depth_inches': depth,
+                             'standard_position': row['standard_position'] == 'true',
+                             'notes': row['notes'].strip()})
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ValueError(f'Manual depth CSV row {reader.line_num}: {exc}') from exc
+    if not readings:
+        raise ValueError('Manual depth CSV has no measurements')
+    return sorted(readings, key=lambda row: (row['t'], row['location_id']))
+
+
 def metrics(series):
     if not series:
         return {'count': 0, 'last': None, 'latest': None}
@@ -250,6 +295,7 @@ def render(payload):
 
 def run():
     now = datetime.now(UTC)
+    manual_depths = parse_manual_depths((ROOT / 'data' / 'manual_depths.csv').read_bytes())
     stage_start = now - timedelta(days=14)
     tide_start = now - timedelta(days=7)
     future = now + timedelta(days=3)
@@ -282,11 +328,13 @@ def run():
     document = {
         'built_utc': now.isoformat(timespec='seconds'),
         'williams_point': stage,
+        'manual_depths': manual_depths,
         'trident': sources,
         'weather_forecast': forecast,
         'status': {'williams_point': metrics(stage), **{k: metrics(v) for k,v in sources.items()}},
         'warnings': warnings,
-        'source_notes': {'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1; Water Height (MHHW)[ft]',
+        'source_notes': {'manual_depths': 'User-reported road-center spot depths, inches over local road surface; transcribed from supplied screenshot; original times explicitly EST (UTC-05:00). Positions and method notes retained; not datum-referenced gauge heights.',
+                         'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1; Water Height (MHHW)[ft]',
                          'iem_request': stage_params,
                          'noaa_request': {'station': '8721604', 'units': 'metric', 'time_zone': 'gmt', 'datum': 'MLLW (water levels and astronomical tides only)'},
                          'trident': 'NOAA CO-OPS station 8721604; metric units; ocean levels in MLLW'},

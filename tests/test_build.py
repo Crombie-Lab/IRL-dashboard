@@ -1,6 +1,8 @@
 import importlib.util
 import tempfile
 import json
+import csv
+import io
 from datetime import timedelta
 import unittest
 from unittest.mock import patch
@@ -15,6 +17,52 @@ spec.loader.exec_module(mod)
 
 
 class TestParsing(unittest.TestCase):
+    def manual_fixture(self):
+        return (MOD_PATH.parents[1] / 'tests/fixtures/manual_depths.csv').read_bytes()
+
+    def test_manual_depths_screenshot_values_and_est_to_utc(self):
+        readings = mod.parse_manual_depths((MOD_PATH.parents[1] / 'data/manual_depths.csv').read_bytes())
+        expected = {
+            ('2026-11-04T21:00+00:00', 'indian_river_north'): 10,
+            ('2026-11-04T21:00+00:00', 'briarwood_entrance'): 5,
+            ('2026-11-05T14:30+00:00', 'indian_river_north'): 8,
+            ('2026-11-05T14:30+00:00', 'briarwood_entrance'): 2.75,
+            ('2026-11-05T22:30+00:00', 'indian_river_north'): 6.25,
+            ('2026-11-05T22:30+00:00', 'briarwood_entrance'): 1.125,
+        }
+        self.assertEqual({(r['t'],r['location_id']):r['depth_inches'] for r in readings}, expected)
+        nonstandard = [r for r in readings if not r['standard_position']]
+        self.assertEqual(len(nonstandard), 1)
+        self.assertEqual(nonstandard[0]['location_id'], 'indian_river_north')
+        self.assertIn('Not a standard location', nonstandard[0]['notes'])
+        self.assertTrue(all(r['original_time'].endswith('-05:00') for r in readings))
+
+    def test_manual_fixture_and_rejected_invalid_rows(self):
+        payload = self.manual_fixture()
+        readings = mod.parse_manual_depths(payload)
+        self.assertEqual(len(readings), 2)
+        self.assertEqual(readings[0]['t'], '2026-11-04T21:00+00:00')
+        reader = csv.DictReader(io.StringIO(payload.decode()))
+        rows = list(reader)
+        for field, bad in [('observed_at','2026-11-04T16:00:00'),('observed_at','invalid'),
+                           ('water_depth_inches',''),('water_depth_inches','NaN'),('water_depth_inches','-1'),
+                           ('location_id','unknown'),('standard_position','maybe'),('notes','')]:
+            row = {**rows[0],field:bad}
+            out = io.StringIO()
+            writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
+            writer.writeheader()
+            writer.writerow(row)
+            with self.subTest(field=field,bad=bad), self.assertRaises(ValueError):
+                mod.parse_manual_depths(out.getvalue().encode())
+        # A valid zero is a measured dry point, distinct from a missing depth.
+        row = {**rows[0], 'water_depth_inches':'0'}
+        out = io.StringIO(); writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
+        writer.writeheader(); writer.writerow(row)
+        self.assertEqual(mod.parse_manual_depths(out.getvalue().encode())[0]['depth_inches'], 0)
+        for bad in [b'', payload.splitlines()[0]+b'\n', payload+payload.splitlines()[1]+b'\n']:
+            with self.assertRaises(ValueError):
+                mod.parse_manual_depths(bad)
+
     def nws_fixture(self):
         return json.loads((MOD_PATH.parents[1] / 'tests/fixtures/nws_grid.json').read_text())
 
