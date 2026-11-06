@@ -32,6 +32,7 @@ WATER_QUALITY = {
     'turbidity': ('Turbidity Form Neph.YSI@37375724', 'FNU'),
 }
 HEADERS = {'User-Agent': 'IRL-dashboard/0.2 (https://github.com/Crombie-Lab/IRL-dashboard)'}
+MAX_DOWNLOAD_BYTES = 16 * 1024 * 1024
 
 
 def get_bytes(base, params, max_attempts=4, *, data=None):
@@ -39,7 +40,9 @@ def get_bytes(base, params, max_attempts=4, *, data=None):
     for attempt in range(max_attempts):
         try:
             with urlopen(Request(url, headers=HEADERS, data=data), timeout=45) as response:
-                payload = response.read()
+                payload = response.read(MAX_DOWNLOAD_BYTES + 1)
+            if len(payload) > MAX_DOWNLOAD_BYTES:
+                raise ValueError('HTTP response exceeds the 16 MiB download limit')
             if not payload:
                 raise ValueError('Empty HTTP response')
             return payload

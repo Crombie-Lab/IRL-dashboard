@@ -5,7 +5,7 @@ import csv
 import io
 from datetime import timedelta
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from urllib.error import HTTPError, URLError
 from datetime import datetime, timezone
 from pathlib import Path
@@ -249,6 +249,18 @@ class TestParsing(unittest.TestCase):
                 mod.get_bytes('https://example.invalid', {})
             sleep.assert_not_called()
             self.assertEqual(fetch.call_count, 1)
+
+    def test_http_download_size_limit_and_normal_response(self):
+        response = MagicMock()
+        response.__enter__.return_value = response
+        fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
+        response.read.return_value = fixture
+        with patch.object(mod, 'urlopen', return_value=response):
+            self.assertEqual(mod.get_bytes('https://example.invalid', {}), fixture)
+            response.read.assert_called_with(mod.MAX_DOWNLOAD_BYTES + 1)
+            response.read.return_value = b'x' * (mod.MAX_DOWNLOAD_BYTES + 1)
+            with self.assertRaisesRegex(ValueError, 'download limit'):
+                mod.get_bytes('https://example.invalid', {})
 
     def test_primary_failure_does_not_render(self):
         with patch.object(mod, 'get_bytes', return_value=b''), patch.object(mod, 'render') as render:
