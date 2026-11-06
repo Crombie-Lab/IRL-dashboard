@@ -7,6 +7,7 @@
 <meta name="description" content="Recent measured water levels, winds, and tides near Cocoa, Florida." />
 <script src="https://cdn.plot.ly/plotly-2.35.3.min.js" defer></script>
 <script src="assets/vendor/wind-barbs.js" defer></script>
+<script src="assets/wind-barb-adapter.js" defer></script>
 <style>
 :root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#132b3b;background:#f3f7fa}
 *{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:0 auto;padding:25px 19px 70px}
@@ -21,6 +22,7 @@ header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
 .metric-caption,.caption{font-size:12px;color:#647887;line-height:1.5}.status{display:flex;align-items:center;gap:8px;margin:16px 0 18px;color:#415b69;font-size:13px}
 .dot{height:10px;width:10px;border-radius:100%;display:inline-block;background:#1ca876}.dot.stale{background:#c47924}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
+.forecast-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 6px}.forecast-controls button{font:inherit;font-size:12px;padding:7px 12px;border:1px solid #b9cdd8;background:#fff;color:#28485a;border-radius:6px;cursor:pointer}.forecast-controls button[aria-pressed="true"]{background:#17667e;color:#fff;border-color:#17667e}
 .manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .metric-value{color:#b42318}.plot.forecast-plot{height:400px}
 .plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
 .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
@@ -47,7 +49,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
 </section>
 <section style="margin-top:24px" aria-label="NOAA weather forecast">
- <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · wind &amp; precipitation</h2><p>Cocoa area (32926), NWS grid covering 28.3903, -80.8026. Default view: next 72 hours. Wind and gusts use m/s on the left; precipitation totals use mm on the right. Points represent original forecast periods; connecting lines are visual guides, not hourly rain estimates. Hover for exact period bounds.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p></div><div id="forecastplot" class="plot forecast-plot"></div><div class="plot-head"><p>Wind-barb shafts point toward the direction the wind comes from. A half feather is 5 knots, a full feather 10 knots, a triangle 50 knots; symbols round to the nearest 5 knots. Sparse barbs sample valid NOAA intervals; hover on wind points for direction. Precipitation points show the full total for each source period, often 6 hours, including any part before now. Forecasts are separate from observations and may change.</p></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · wind &amp; precipitation</h2><p>Cocoa area (32926). Wind and gusts: m/s on the left; precipitation: mm per NOAA period on the right. Default view: next 72 hours.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p><p id="precip-summary" aria-live="polite"></p></div><div class="forecast-controls" role="group" aria-label="Forecast time range"><button id="forecast-72h" type="button" aria-pressed="true">Next 72 hours</button><button id="forecast-full" type="button" aria-pressed="false">Full forecast</button></div><div id="forecastplot" class="plot forecast-plot"></div><div class="plot-head"><p>Barbs point toward the wind source. Half feather = 5 knots, full feather = 10, triangle = 50; circles represent speeds rounded below 2.5 knots. Rain points show full NOAA-period totals, usually 6 hours, including any part before now. Connecting lines are visual guides, not hourly estimates. Hover for details. Forecasts may change.</p></div></article>
 </section>
 <section class="twocol" style="margin-top:24px" aria-label="Additional coastal context">
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier · ocean &amp; astronomical tide</h2><p>Observed ocean level and predicted astronomical tide, meters relative to MLLW. Absolute heights are not directly comparable with Williams Point.</p><p id="ocean-time"></p></div><div id="tideplot" class="smallplot"></div></article>
@@ -164,23 +166,40 @@ function forecastTrace(key,name,color,axis='y'){
   hovertemplate:'%{y:.2f}<br>%{customdata[0]} to %{customdata[1]}'+(key==='wind'?'<br>From %{customdata[2]} at period midpoint':'')+'<extra>'+name+'</extra>'};
 }
 const speedMax=Math.max(1,...[...(forecast.wind||[]),...(forecast.gust||[])].map(r=>r.v??0));
+const forecastEnd=Math.max(forecastStart,...['wind','gust','rain'].flatMap(key=>(forecast[key]||[]).map(r=>Date.parse(r.end))));
 const forecastPlot=draw('forecastplot',[
  forecastTrace('wind','Wind (m/s)','#10799d'),
  forecastTrace('gust','Gust (m/s)','#6b92a1'),
  forecastTrace('rain','Period precipitation (mm)','#cf7b29','y2')
-],{xaxis:forecastAxis,yaxis:{title:'Wind (m/s)',range:[0,speedMax*1.3]},yaxis2:{title:'Period total (mm)',overlaying:'y',side:'right',rangemode:'tozero',showgrid:false},hovermode:'closest'});
-// Existing SVG wind-barb glyphs, positioned with Plotly images. No inferred values.
+],{margin:{t:100},xaxis:forecastAxis,yaxis:{title:'Wind (m/s)',range:[0,speedMax*1.3]},yaxis2:{title:'Period total (mm)',overlaying:'y',side:'right',rangemode:'tozero',showgrid:false},hovermode:'closest'});
+// Standard wind-barbs generator, in a dedicated row clear of the forecast curves.
 if(forecastPlot) forecastPlot.then(gd=>{
  let signature='';
+ const axisTime=value=>typeof value==='number'?value:Date.parse(/(?:Z|[+-]\d\d:\d\d)$/.test(value)?value:value.replace(' ','T')+(value.length===10?'T00:00:00Z':'Z'));
+ function summarizeRain(start,end){
+  const rows=(forecast.rain||[]).filter(r=>Date.parse(r.t)<end&&Date.parse(r.end)>start);
+  const values=rows.filter(r=>r.v!=null).map(r=>r.v);
+  let covered=start;
+  for(const row of rows){if(row.v==null||Date.parse(row.t)>covered) break;covered=Math.max(covered,Date.parse(row.end));}
+  const complete=covered>=end;
+  let text=!values.length?'Precipitation amounts unavailable for this view.':
+   complete&&values.every(v=>v===0)?'NOAA reports 0 mm for every precipitation period covering this view.':
+   `Reported precipitation period totals in this view: ${Math.min(...values)}–${Math.max(...values)} mm.${complete?'':' Some periods are missing.'}`;
+  const chances=(forecast.probability||[]).filter(r=>r.v!=null&&Date.parse(r.t)<end&&Date.parse(r.end)>start).map(r=>r.v);
+  if(chances.length) text+=` Maximum reported precipitation chance over overlapping periods: ${Math.max(...chances)}%.`;
+  const wet=(forecast.rain||[]).find(r=>r.v>0&&Date.parse(r.end)>forecastStart);
+  if(wet&&Date.parse(wet.t)>=end) text+=` First nonzero amount in the loaded forecast starts ${fmtEastern(wet.t)}; choose Full forecast to inspect it.`;
+  document.getElementById('precip-summary').textContent=text;
+ }
  function updateBarbs(){
   const range=gd.layout.xaxis.range;
-  const axisTime=value=>typeof value==='number'?value:Date.parse(/(?:Z|[+-]\d\d:\d\d)$/.test(value)?value:value.replace(' ','T')+(value.length===10?'T00:00:00Z':'Z'));
   const start=axisTime(range[0]),end=axisTime(range[1]);
-  const yrange=gd.layout.yaxis.range||[0,speedMax*1.3];
-  const width=Math.max(120,gd.clientWidth-120),height=Math.max(120,gd.clientHeight-75);
-  const key=[start,end,width,height,...yrange].join('|');
+  const frame=gd.querySelector('.bglayer .bg')?.getBoundingClientRect();
+  const width=Math.max(120,frame?.width||gd.clientWidth-120),height=Math.max(120,frame?.height||gd.clientHeight-165);
+  const key=[start,end,width,height].join('|');
   if(key===signature||!(end>start)) return;
   signature=key;
+  summarizeRain(start,end);
   // A minimum three-hour spacing, increased on small screens or wide time ranges.
   const step=Math.max(3,Math.ceil((end-start)/36e5/(width/70)))*36e5;
   const images=[];
@@ -189,12 +208,19 @@ if(forecastPlot) forecastPlot.then(gd=>{
    if(speed==null) continue;
    const svg=window.WindBarbs.svg(speed,bearing);
    if(!svg) continue;
-   images.push({source:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),xref:'x',yref:'y',
-    x:new Date(time).toISOString(),y:speed,sizex:(end-start)*64/width,sizey:(yrange[1]-yrange[0])*64/height,
+   images.push({source:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),xref:'x',yref:'paper',
+    x:new Date(time).toISOString(),y:1+44/height,sizex:(end-start)*64/width,sizey:80/height,
     xanchor:'center',yanchor:'middle',sizing:'contain',opacity:.9,layer:'above'});
   }
   Plotly.relayout(gd,{images});
  }
+ function setRange(full){
+  document.getElementById('forecast-72h').setAttribute('aria-pressed',String(!full));
+  document.getElementById('forecast-full').setAttribute('aria-pressed',String(full));
+  Plotly.relayout(gd,{'xaxis.range':[new Date(forecastStart).toISOString(),new Date(full?forecastEnd:forecastStart+72*36e5).toISOString()],'xaxis.autorange':false});
+ }
+ document.getElementById('forecast-72h').addEventListener('click',()=>setRange(false));
+ document.getElementById('forecast-full').addEventListener('click',()=>setRange(true));
  gd.on('plotly_afterplot',updateBarbs);updateBarbs();
 });
 

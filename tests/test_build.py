@@ -84,6 +84,17 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(parsed['direction'][0]['v'], 80)
         self.assertTrue(parsed['updated_utc'].endswith('+00:00'))
 
+    def test_nws_small_nonzero_rain_totals_preserved(self):
+        body = self.nws_fixture()
+        source = json.loads((MOD_PATH.parents[1] / 'tests/fixtures/nws_precipitation.json').read_text())
+        body['properties']['quantitativePrecipitation'] = source
+        parsed = mod.parse_nws_grid(json.dumps(body), datetime(2026,11,6,1,tzinfo=timezone.utc))
+        self.assertEqual([r['v'] for r in parsed['rain']], [0, .254, .508])
+        for raw, row in zip(source['values'], parsed['rain']):
+            start, end = mod.nws_interval(raw['validTime'])
+            self.assertEqual(row['t'], start.isoformat())
+            self.assertEqual(row['end'], end.isoformat())
+
     def test_nws_missing_invalid_and_unknown_units(self):
         now = datetime(2026,11,5,17,tzinfo=timezone.utc)
         for value in [None, 'NaN', -1, 101]:
@@ -198,7 +209,8 @@ class TestParsing(unittest.TestCase):
                 self.assertIn('"v":1.5',html)
                 self.assertTrue((Path(d) / '.nojekyll').exists())
                 self.assertTrue((Path(d) / 'assets/vendor/wind-barbs.js').is_file())
-                self.assertIn('BSD 2-Clause', (Path(d) / 'assets/vendor/wind-barbs.LICENSE').read_text())
+                self.assertIn('MIT License', (Path(d) / 'assets/vendor/wind-barbs.LICENSE').read_text())
+                self.assertTrue((Path(d) / 'assets/wind-barb-adapter.js').is_file())
             finally:
                 mod.SITE = original_site
 
