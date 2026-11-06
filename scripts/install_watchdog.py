@@ -26,7 +26,10 @@ def atomic_write(path, content):
     try:
         os.replace(temporary, path)
     finally:
-        temporary.unlink(missing_ok=True)
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass  # Successful replacement already removed the temporary path.
 
 
 def cron_entry(directory, python):
@@ -78,17 +81,17 @@ def main(argv=None):
         entry = cron_entry(root, Path(sys.executable).absolute())
         if args.install_cron:
             watchdog.load_token(root / 'token')
-            result = subprocess.run(['crontab', '-l'], capture_output=True, text=True,
+            result = subprocess.run(['crontab', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
                                     env={**os.environ, 'LC_ALL': 'C'}, timeout=15)
             if result.returncode != 0 and not (result.returncode == 1 and 'no crontab for' in result.stderr.lower()):
                 raise watchdog.WatchdogError('Cannot read current crontab; no changes made')
             existing = result.stdout if result.returncode == 0 else ''
             merged = merge_cron(existing, entry)
             atomic_write(root / 'crontab.before-watchdog', existing.encode())
-            result = subprocess.run(['crontab', '-'], input=merged, capture_output=True, text=True, timeout=15)
+            result = subprocess.run(['crontab', '-'], input=merged, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=15)
             if result.returncode:
                 raise watchdog.WatchdogError('Cron install failed; private backup retained')
-            result = subprocess.run(['crontab', '-l'], capture_output=True, text=True, timeout=15)
+            result = subprocess.run(['crontab', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=15)
             if result.returncode or entry not in result.stdout.splitlines():
                 raise watchdog.WatchdogError('Cron verification failed; inspect crontab manually')
             print('Managed cron entry installed and verified; existing entries preserved.')

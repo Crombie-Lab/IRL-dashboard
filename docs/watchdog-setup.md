@@ -40,6 +40,10 @@ Run from a reviewed checkout on the chosen cron host:
 python3 scripts/install_watchdog.py --set-token
 ```
 
+Use your intended Python environment for both setup commands and check `python3 --version` first. The cron entry records that interpreter's absolute path, so it does not need interactive environment activation on each run. The small watchdog/installer support Python 3.6+ standard-library interfaces; a currently maintained Python environment is preferred. This does not change the dashboard build's Python 3.12 environment in GitHub Actions.
+
+If an older pinned checkout reports `unlink() got an unexpected keyword argument 'missing_ok'`, update to the reviewed compatibility-fix commit before rerunning setup. Both installer cleanup and watchdog state saving avoid that Python 3.8-only argument. A failure while copying `watchdog.py` occurs before the token prompt; rerunning installation safely replaces that partial private copy.
+
 The default location is `~/.local/share/irl-dashboard-watchdog/`, with directory mode 700 and private files mode 600. Group/world-writable ancestors, symlinks and unsafe existing files are rejected. Installation requires no administrator privileges. This command prepares the private code and token but **does not change cron**.
 
 The shared project checkout can be writable by a project group. The cron process deliberately runs its private installed copy, with Python isolated mode (`-I`), rather than executing a changing shared checkout or automatically pulling remote code. Review future changes and rerun installation deliberately when upgrading. Anyone who controls the user account or trusted parent directories still controls its private code/token.

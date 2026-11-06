@@ -47,7 +47,13 @@ def timestamp(value):
     try:
         if not isinstance(value, str):
             raise ValueError
-        result = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        if hasattr(datetime, 'fromisoformat'):
+            result = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        else:
+            # Python 3.6 lacks fromisoformat and its %z requires colon-free offsets.
+            normalized = re.sub(r'([+-]\d{2}):(\d{2})$', r'\1\2', value.replace('Z', '+0000'))
+            form = '%Y-%m-%dT%H:%M:%S' + ('.%f' if '.' in normalized else '') + '%z'
+            result = datetime.strptime(normalized, form)
         if result.tzinfo is None:
             raise ValueError
         return result.astimezone(UTC)
@@ -181,7 +187,10 @@ def save_state(path, state):
     try:
         os.replace(temporary, path)
     finally:
-        temporary.unlink(missing_ok=True)
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass  # Successful replacement already removed the temporary path.
 
 
 def check(root, *, dry_run=False, now=None, fetch=request_json):

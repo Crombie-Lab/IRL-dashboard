@@ -238,11 +238,57 @@ class TestWatchdog(unittest.TestCase):
             run.assert_not_called()
         self.assertFalse((directory / 'token').exists())
 
+    def test_atomic_writes_support_legacy_path_unlink(self):
+        def legacy_unlink(path):
+            os.unlink(str(path))  # No missing_ok keyword, matching Python before 3.8.
+        target = self.private('installed-code', 'old')
+        with patch.object(Path, 'unlink', legacy_unlink):
+            installer.atomic_write(target, b'updated')
+            mod.save_state(self.root / 'state.json', {'attempts': []})
+        self.assertEqual(target.read_bytes(), b'updated')
+        self.assertEqual(mod.load_state(self.root / 'state.json'), {'attempts': []})
+        self.assertEqual(target.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(list(self.root.glob('.state-*')), [])
+
+    def test_legacy_datetime_parses_real_utc_schemas_and_fractional_offsets(self):
+        class LegacyDatetime:
+            @staticmethod
+            def strptime(value, form):
+                self.assertNotRegex(value, r'[+-]\d{2}:\d{2}$')
+                return datetime.strptime(value, form)
+        with patch.object(mod, 'datetime', LegacyDatetime):
+            self.assertEqual(mod.parse_marker(self.marker, self.now).hour, 17)
+            self.assertIsNone(mod.workflow_busy(self.runs, self.now))
+            self.assertEqual(mod.timestamp('2026-11-06T14:30:00-05:00'), self.now)
+            self.assertEqual(mod.timestamp('2026-11-06T19:30:00.123456+00:00').microsecond, 123456)
+            for value in ('2026-11-06', '2026-11-06T19:30:00', '2026-11-06T25:30:00Z'):
+                with self.assertRaises(mod.WatchdogError):
+                    mod.timestamp(value)
+
+    def test_atomic_write_failure_preserves_destination_and_cleans_temp(self):
+        def legacy_unlink(path):
+            os.unlink(str(path))
+        target = self.private('installed-code', 'old')
+        before = set(self.root.iterdir())
+        with patch.object(Path, 'unlink', legacy_unlink), \
+                patch.object(os, 'replace', side_effect=PermissionError('simulated replace failure')):
+            with self.assertRaises(PermissionError):
+                installer.atomic_write(target, b'updated')
+            with self.assertRaises(PermissionError):
+                mod.save_state(self.root / 'state.json', {'attempts': []})
+        self.assertEqual(target.read_bytes(), b'old')
+        self.assertEqual(set(self.root.iterdir()), before)
+
     def test_explicit_installer_backs_up_and_verifies_preserved_cron(self):
         directory = self.root / 'install'
         existing = '# Existing unrelated cron\n5 * * * * /private/job\n'
         calls = []
-        def run(argv, **kwargs):
+        def run(argv, *, stdout=None, stderr=None, universal_newlines=False, input=None, env=None, timeout=None):
+            # The legacy interface rejects capture_output/text keyword arguments.
+            kwargs = {'input': input}
+            self.assertEqual(stdout, installer.subprocess.PIPE)
+            self.assertEqual(stderr, installer.subprocess.PIPE)
+            self.assertTrue(universal_newlines)
             calls.append((argv, kwargs))
             result = MagicMock(returncode=0, stdout=existing, stderr='')
             if len(calls) == 3:
