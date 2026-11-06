@@ -8,6 +8,7 @@
 <script src="https://cdn.plot.ly/plotly-2.35.3.min.js" integrity="sha384-MqL7Cy3itNqCI1Wlc926K0XhyRKJ/NMqTaytIIEB+QIdInOploxqRIHRKLlhPykM" crossorigin="anonymous" defer></script>
 <script src="assets/vendor/matplotlib-barbs.js" defer></script>
 <script src="assets/wind-barb-adapter.js?v=matplotlib-3.10.8" defer></script>
+<script src="assets/eastern-time.js" defer></script>
 <style>
 :root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#132b3b;background:#f3f7fa}
 *{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:0 auto;padding:25px 19px 70px}
@@ -71,7 +72,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <p class="meta"><a href="https://www.sjrwmd.com/waterways/indian-river-lagoon/facts/">SJRWMD: Indian River Lagoon</a> · <a href="https://www.sjrwmd.com/waterways/st-johns-river/upper/">SJRWMD: Upper St. Johns River Basin</a></p>
 <details class="manual-details"><summary>Sources &amp; measurement details</summary>
 <p>Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">IEM / NWS WIPF1</a>, feet relative to MHHW. Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA 8721604</a>, ocean levels and astronomical tides in feet relative to MLLW; wind in mph and pressure in hPa. MHHW and MLLW are different reference levels. Neither is road depth, and heights at different stations cannot be directly subtracted.</p>
-<p>Chart times use UTC (universal time). Card times include their time zone; manual readings use Eastern time. Data gaps stay blank. Automatic readings and site updates over 3 hours old are flagged; NOAA forecast updates are flagged after 12 hours. These are freshness checks, not flood thresholds.</p>
+<p>All displayed times use local Eastern time (EST in winter, EDT in summer). Data gaps stay blank. Automatic readings and site updates over 3 hours old are flagged; NOAA forecast updates are flagged after 12 hours. These are freshness checks, not flood thresholds.</p>
 <p>Road-depth dots use a separate inches scale. Their position against the lagoon line does not establish a relationship. Manual readings are user-reported; the first north-culvert reading was at a nearby spot. NOAA forecasts describe future weather, not lagoon flooding. Forecast rain keeps NOAA’s original periods; a zero amount can accompany a nonzero rain chance.</p>
 <p>Observations may be preliminary. Updates are attempted hourly and can be delayed.</p>
 </details>
@@ -88,8 +89,7 @@ const manual=payload.manual_depths||[];
 const waterQuality=payload.water_quality||{};
 const qualityStation=(waterQuality.stations||[]).find(s=>s.name==='IRLI13');
 const qualitySeries=qualityStation?.series||{};
-const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'Not available';
-const fmtUTC=t=>new Date(t).toLocaleString(undefined,{timeZone:'UTC',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' UTC';
+const fmt=window.EasternTime.format;
 const fmtEastern=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
 for(const row of manual){
  const tr=document.createElement('tr');
@@ -240,7 +240,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden) checkForU
 checkForUpdate();
 const config={responsive:true,displayModeBar:false,scrollZoom:false,doubleClick:false,showAxisDragHandles:false,showAxisRangeEntryBoxes:false};
 const initialViews=[];
-const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:60,r:60,t:10,b:65},font:{size:12,color:'#395766'},hovermode:'x unified',dragmode:'pan',xaxis:{title:'UTC',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
+const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:60,r:60,t:10,b:65},font:{size:12,color:'#395766'},hovermode:'closest',dragmode:'pan',xaxis:{title:'Eastern time',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
 // Fit the entire downloaded trace once; horizontal panning never changes its height.
 function fixedHeight(traces,axis,options={}){
  if(options.range) return {...options,autorange:false,fixedrange:true};
@@ -255,7 +255,7 @@ function draw(id,traces,opts={}){
  if(!traces.some(t=>t.y?.some(v=>v!=null))){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No data available.</p>';return;}
  const times=traces.flatMap(t=>(t.x||[]).filter((_,i)=>t.y?.[i]!=null).map(axisTime)).filter(Number.isFinite);
  const bounds={minallowed:new Date(Math.max(Math.min(...times),Date.parse(payload.built_utc)-14*864e5)).toISOString(),maxallowed:new Date(Math.max(...times,observationEnd)).toISOString()};
- const layout={...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...bounds,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0,itemdoubleclick:false}};
+ const layout={...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...bounds,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0,itemdoubleclick:false,...(opts.legend||{})}};
  // Short or delayed feeds get a narrower/clamped view rather than an empty window.
  const axis=layout.xaxis,low=axisTime(axis.minallowed),high=axisTime(axis.maxallowed);
  if(axis.range&&high>low){
@@ -263,8 +263,19 @@ function draw(id,traces,opts={}){
   const start=Math.max(low,Math.min(axisTime(axis.range[0]),high-width));
   axis.range=[new Date(start).toISOString(),new Date(start+width).toISOString()];
  }
+ Object.assign(axis,window.EasternTime.ticks(axisTime(axis.range[0]),axisTime(axis.range[1]),document.getElementById(id).clientWidth-layout.margin.l-layout.margin.r));
  for(const key of Object.keys(layout).filter(k=>/^yaxis\d*$/.test(k))) layout[key]=fixedHeight(traces,key.replace('axis',''),layout[key]);
  return Plotly.newPlot(id,traces,layout,config).then(gd=>{
+  let tickSignature='';
+  function updateLocalTicks(){
+   const range=gd.layout.xaxis.range,start=axisTime(range[0]),end=axisTime(range[1]),width=gd._fullLayout._size.w;
+   const signature=[start,end,width].join('|');
+   if(signature===tickSignature) return;
+   tickSignature=signature;
+   const ticks=window.EasternTime.ticks(start,end,width);
+   Plotly.relayout(gd,{'xaxis.tickmode':ticks.tickmode,'xaxis.tickvals':ticks.tickvals,'xaxis.ticktext':ticks.ticktext});
+  }
+  gd.on('plotly_afterplot',updateLocalTicks);updateLocalTicks();
   // Plotly 2.x switches pan to zoom on Shift-drag; block that shortcut.
   gd.addEventListener('mousedown',event=>{if(event.shiftKey){event.preventDefault();event.stopImmediatePropagation();}},true);
   // Plotly clips each pan endpoint separately at a limit; restore the chosen width.
@@ -290,7 +301,10 @@ document.getElementById('reset-views').addEventListener('click',()=>{
 function line(arr,name,color,key='v',convert=v=>v){
  const rows=[];const maxGap=name==='Williams Point'||name==='Ocean level'?30*60000:90*60000;
  for(const row of arr||[]){const previous=rows[rows.length-1];if(previous&&Date.parse(row.t)-Date.parse(previous.t)>maxGap) rows.push({t:row.t,[key]:null});rows.push(row);}
- return {x:rows.map(r=>r.t),y:rows.map(r=>convert(r[key])),name,type:'scattergl',mode:key==='direction'?'markers':'lines',line:{color,width:2},connectgaps:false};
+ const unit={'Williams Point':'ft MHHW','Ocean level':'ft MLLW','Tide prediction':'ft MLLW','Pressure':'hPa'}[name]||'';
+ return {x:rows.map(r=>r.t),y:rows.map(r=>convert(r[key])),customdata:rows.map(r=>[fmt(r.t)]),
+  hovertemplate:'%{customdata[0]}<br>%{y:.'+(name==='Pressure'?'1':'2')+'f} '+unit+'<extra>'+name+'</extra>',
+  name,type:'scattergl',mode:key==='direction'?'markers':'lines',line:{color,width:2},connectgaps:false};
 }
 // Align recent feeds; a stale optional source must not move all plots into the past.
 const stageEnd=Date.parse(latest?.t||payload.built_utc);
@@ -333,18 +347,18 @@ function addBarbTrack(gd,samples,onRange=()=>{},trackY=null){
  }
  gd.on('plotly_afterplot',updateBarbs);updateBarbs();
 }
-draw('tideplot',[line(dat.ocean,'Ocean level','#10799d','v',toFeet),{...line(dat.tide,'Tide prediction','#dc8b3c','v',toFeet),line:{color:'#dc8b3c',dash:'dash',width:2}}],{xaxis:observationAxis,yaxis:{title:'Height (ft MLLW)'}});
+draw('tideplot',[line(dat.ocean,'Ocean level','#10799d','v',toFeet),{...line(dat.tide,'Tide prediction','#dc8b3c','v',toFeet),line:{color:'#dc8b3c',dash:'dash',width:2}}],{xaxis:observationAxis,yaxis:{title:'Height (ft MLLW)'},legend:{y:-.65}});
 const observedWind=line(dat.wind,'Wind','#10799d','speed',toMph);
 const windByTime=new Map((dat.wind||[]).map(row=>[row.t,row]));
 observedWind.customdata=observedWind.x.map(t=>{
  const bearing=windByTime.get(t)?.direction;
- return bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`;
+ return [fmt(t),bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`];
 });
-observedWind.hovertemplate='%{x|%b %d %H:%M} UTC<br>%{y:.1f} mph<br>Wind from %{customdata}<extra>Trident wind</extra>';
+observedWind.hovertemplate='%{customdata[0]}<br>%{y:.1f} mph<br>Wind from %{customdata[1]}<extra>Trident wind</extra>';
 const observedWindPlot=draw('stageplot',[
  line(stage,'Williams Point','#10799d'),...manualTraces,
  {...observedWind,yaxis:'y3',mode:'lines+markers',marker:{size:4,color:'#10799d'}},
- {...line(dat.wind,'Gust','#6b92a1','gust',toMph),yaxis:'y3',mode:'lines+markers',marker:{size:4,color:'#6b92a1'},hovertemplate:'%{x|%b %d %H:%M} UTC<br>%{y:.1f} mph<extra>Trident gust</extra>'}
+ {...line(dat.wind,'Gust','#6b92a1','gust',toMph),yaxis:'y3',mode:'lines+markers',marker:{size:4,color:'#6b92a1'},hovertemplate:'%{customdata[0]}<br>%{y:.1f} mph<extra>Trident gust</extra>'}
 ],{margin:{b:80},xaxis:{...observationAxis,anchor:'y3'},
  yaxis:{title:'Level (ft MHHW)',domain:[.52,1]},
  yaxis2:{title:'Road depth (in)',overlaying:'y',side:'right',range:[0,Math.max(...manual.map(r=>r.depth_inches))*1.3||1],showgrid:false,zeroline:false},
@@ -373,8 +387,8 @@ for(const [index,key,title,unit,convert] of [
   const trace=line(rows,station.name,'#10799d','v',convert);
   const byTime=new Map(rows.map(r=>[r.t,r]));
   trace.yaxis=index?'y'+(index+1):'y';
-  trace.customdata=trace.x.map(t=>{const r=byTime.get(t);return [r?.quality||'unavailable',r?.grade??'',r?.approval??''];});
-  trace.hovertemplate=`%{x|%b %d %H:%M} UTC<br>${title}: %{y:.1f} ${unit}<br>%{customdata[0]}<br>Grade %{customdata[1]} · approval %{customdata[2]}<extra>${station.name}</extra>`;
+  trace.customdata=trace.x.map(t=>{const r=byTime.get(t);return [fmt(t),r?.quality||'unavailable',r?.grade??'',r?.approval??''];});
+  trace.hovertemplate=`%{customdata[0]}<br>${title}: %{y:.1f} ${unit}<br>%{customdata[1]}<br>Grade %{customdata[2]} · approval %{customdata[3]}<extra>${station.name}</extra>`;
   qualityTraces.push(trace);
  }
 }
@@ -403,7 +417,7 @@ function forecastTrace(key,name,color,axis='y'){
   const mid=(Date.parse(row.t)+Date.parse(row.end))/2;
   const bearing=valueAt('direction',mid);
   x.push(new Date(mid).toISOString());y.push(key==='rain'?toInches(row.v):toMph(row.v));
-  customdata.push([fmtUTC(row.t),fmtUTC(row.end),bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`,row.v==null?'unavailable':key==='rain'?rainLabel(toInches(row.v)):toMph(row.v).toFixed(1)]);previous=row;
+  customdata.push([fmt(row.t),fmt(row.end),bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`,row.v==null?'unavailable':key==='rain'?rainLabel(toInches(row.v)):toMph(row.v).toFixed(1)]);previous=row;
  }
  return {x,y,customdata,name,type:'scatter',mode:'lines+markers',yaxis:axis,
   line:{color,width:2},marker:{color,size:5},connectgaps:false,
