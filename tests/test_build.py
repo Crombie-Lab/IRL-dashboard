@@ -1,5 +1,7 @@
 import importlib.util
 import tempfile
+import json
+from datetime import timedelta
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -13,6 +15,64 @@ spec.loader.exec_module(mod)
 
 
 class TestParsing(unittest.TestCase):
+    def nws_fixture(self):
+        return json.loads((MOD_PATH.parents[1] / 'tests/fixtures/nws_grid.json').read_text())
+
+    def test_nws_real_schema_units_and_intervals(self):
+        now = datetime(2026,11,5,18,tzinfo=timezone.utc)
+        parsed = mod.parse_nws_grid(json.dumps(self.nws_fixture()), now)
+        self.assertAlmostEqual(parsed['wind'][0]['v'], 9.26 / 3.6)
+        self.assertEqual(parsed['wind'][0]['t'], '2026-11-05T18:00:00+00:00')
+        self.assertEqual(parsed['wind'][0]['end'], '2026-11-05T20:00:00+00:00')
+        self.assertEqual(parsed['rain'][0]['v'], 0)
+        self.assertEqual(parsed['rain'][0]['end'], '2026-11-06T00:00:00+00:00')
+        # A multi-hour total stays one value, even when the period overlaps now.
+        body = self.nws_fixture()
+        body['properties']['quantitativePrecipitation']['values'][1]['value'] = 12.7
+        rain = mod.parse_nws_grid(json.dumps(body), now)['rain']
+        self.assertEqual(rain[0]['v'], 12.7)
+        self.assertEqual(len(rain), 3)
+        self.assertEqual(parsed['direction'][0]['v'], 80)
+        self.assertTrue(parsed['updated_utc'].endswith('+00:00'))
+
+    def test_nws_missing_invalid_and_unknown_units(self):
+        now = datetime(2026,11,5,17,tzinfo=timezone.utc)
+        for value in [None, 'NaN', -1, 101]:
+            body = self.nws_fixture()
+            body['properties']['probabilityOfPrecipitation']['values'][0]['value'] = value
+            parsed = mod.parse_nws_grid(json.dumps(body), now)
+            self.assertIsNone(parsed['probability'][0]['v'])
+            self.assertTrue(parsed['warnings'])
+        for body in [{}, {'properties': None}, {'properties': {'updateTime': None}}]:
+            with self.assertRaises(ValueError):
+                mod.parse_nws_grid(json.dumps(body), now)
+        body = self.nws_fixture()
+        body['properties']['windSpeed']['values'][0]['validTime'] = 'invalid'
+        self.assertTrue(mod.parse_nws_grid(json.dumps(body), now)['warnings'])
+        body['properties']['windSpeed']['uom'] = 'wmoUnit:kn'
+        with self.assertRaisesRegex(ValueError, 'units/schema'):
+            mod.parse_nws_grid(json.dumps(body), now)
+        with self.assertRaisesRegex(ValueError, 'no future'):
+            mod.parse_nws_grid(json.dumps(self.nws_fixture()), now + timedelta(days=10))
+
+    def test_nws_intervals_require_timezone_and_positive_duration(self):
+        for interval in ['2026-11-05T17:00:00/PT1H', '2026-11-05T17:00:00Z/PT0H',
+                         '2026-11-05T17:00:00Z/P1M', 'bad/PT1H']:
+            with self.subTest(interval=interval), self.assertRaises(ValueError):
+                mod.nws_interval(interval)
+        start, end = mod.nws_interval('2026-11-05T12:00:00-05:00/P1DT30M')
+        self.assertEqual(start.hour, 17)
+        self.assertEqual(end-start, timedelta(days=1,minutes=30))
+
+    def test_forecast_failure_preserves_observation_build(self):
+        fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
+        with patch.object(mod, 'get_bytes', return_value=fixture), patch.object(mod, 'coops_recent', return_value=[]), patch.object(mod, 'nws_forecast', side_effect=ValueError('unavailable')), patch.object(mod, 'render') as render:
+            mod.run()
+            document = render.call_args.args[0]
+            self.assertTrue(document['williams_point'])
+            self.assertEqual(document['weather_forecast'], {})
+            self.assertTrue(any('forecast unavailable' in w for w in document['warnings']))
+
     def test_iem_water_height_mhhw(self):
         fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
         values = mod.parse_iem(fixture, require_reported_units=True)

@@ -30,7 +30,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 </head>
 <body>
 <main>
-<header><div class="eyebrow">Cocoa, Florida · Observational dashboard</div><h1>Indian River Lagoon Water Monitor</h1><p>Recent water levels at Williams Point, coastal winds and pressure at Trident Pier, and Atlantic tide conditions. Updated approximately hourly when source data and scheduled processing are available.</p></header>
+<header><div class="eyebrow">Cocoa, Florida · Lagoon observations &amp; weather outlook</div><h1>Indian River Lagoon Water Monitor</h1><p>Recent water levels at Williams Point, coastal winds and pressure at Trident Pier, Atlantic tide context, and a separate NOAA rain and wind forecast. Updated approximately hourly when source data and scheduled processing are available.</p></header>
 <div class="status"><span class="dot" id="status-dot"></span><span id="refresh">Loading data timestamp…</span></div>
 <div id="warnings"></div>
 <div class="metrics">
@@ -38,29 +38,34 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
  <div class="card"><div class="metric-label">Trident Pier · latest wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · latest barometric pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
 </div>
-<section class="stack">
- <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · past 14 days</h2><p>Actual measurements at the north Indian River Lagoon gauge; displayed in feet relative to MHHW. This is a gauge level, not a measured depth of water on a road.</p></div><div id="stageplot" class="plot"></div></article>
- <article class="card plot-card"><div class="plot-head"><h2>Trident Pier: ocean water level and astronomical tide</h2><p>Observed ocean level versus predicted tide; both relative to MLLW and shown in meters. These are not directly comparable with Williams Point gauge heights.</p><p id="ocean-time"></p></div><div id="tideplot" class="plot"></div></article>
- <div class="twocol">
-  <article class="card plot-card"><div class="plot-head"><h2>Wind speed and direction</h2><p>Wind direction is the direction it comes <strong>from</strong> (0° N, 90° E, 180° S, 270° W).</p></div><div id="windplot" class="smallplot"></div></article>
-  <article class="card plot-card"><div class="plot-head"><h2>Atmospheric pressure</h2><p>Measured at Trident Pier, in hectopascals (hPa).</p></div><div id="pressureplot" class="smallplot"></div></article>
- </div>
+<section class="stack" aria-label="Measured observations">
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot"></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
+</section>
+<section class="stack" style="margin-top:24px" aria-label="NOAA weather forecast">
+ <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · Cocoa area (32926)</h2><p>Future weather for the NWS grid covering 28.3903, -80.8026. Default view: next 72 hours. Forecasts are separate from measured observations and may change.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p></div><div id="forecast-windplot" class="plot"></div><div class="plot-head"><p>Forecast wind speed and gusts in m/s; direction markers show where wind comes from.</p></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Forecast precipitation · amount &amp; chance</h2><p>Bars show total precipitation (mm, liquid equivalent) for each original NOAA period, often 6 hours; hover for exact UTC bounds. A period overlapping now includes its full total. Amounts are not hourly rates. The chance of precipitation (%) is shown separately; missing values are not zero.</p></div><div id="forecast-rainplot" class="plot"></div></article>
+</section>
+<section class="twocol" style="margin-top:24px" aria-label="Additional coastal context">
+ <article class="card plot-card"><div class="plot-head"><h2>Trident Pier · ocean &amp; astronomical tide</h2><p>Observed ocean level and predicted astronomical tide, meters relative to MLLW. Absolute heights are not directly comparable with Williams Point.</p><p id="ocean-time"></p></div><div id="tideplot" class="smallplot"></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Atmospheric pressure · observations</h2><p>Measured at Trident Pier, in hectopascals (hPa).</p></div><div id="pressureplot" class="smallplot"></div></article>
 </section>
 <section class="card explain">
 <h2>Why does high water persist along the lagoon?</h2>
 <p>The Indian River Lagoon is a shallow, elongated estuary with limited connections to the Atlantic Ocean. Sustained winds can redistribute lagoon water and elevate levels along some shorelines. High lagoon water can also reduce the hydraulic gradient for stormwater outfalls, slowing drainage from low-lying streets and neighborhoods. Local rainfall, ground elevation, blocked or undersized drains, and tidal conditions can also contribute.</p>
 <p>These plots describe <em>water levels and weather</em>, not neighborhood-specific flood depth. They do not establish whether any street is passable. Do not drive through flooded roads.</p>
 <h2>Data and methods</h2>
-<p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Card timestamps use your browser's time zone (shown explicitly); chart axes use UTC. Lines break across gaps exceeding 30 minutes for water levels and 90 minutes for hourly products. Stale means an observation or site build is over 3 hours old; this is a freshness indicator, not a flood threshold. Data are preliminary where their providers have not completed quality control.</p>
+<p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Card timestamps use your browser's time zone (shown explicitly); chart axes use UTC. Lines break across gaps exceeding 30 minutes for water levels and 90 minutes for hourly products. Stale means an observation or site build is over 3 hours old; this is a freshness indicator, not a flood threshold. NOAA weather forecasts come from the NWS grid API; wind is converted from reported km/h to m/s, precipitation remains mm over its source period, and forecast update times over 12 hours old are flagged. Data are preliminary where their providers have not completed quality control.</p>
 <p class="meta"><strong>Important:</strong> No automated flooding forecast, warning threshold, or road safety decision is provided. Check <a href="https://www.weather.gov/mlb/">NWS Melbourne</a> for official advisories. This is an independent informational project, not an official NOAA/NWS product.</p>
 </section>
-<footer>Compiled from public observation services. A missing or delayed upstream observation may produce an older displayed value. Source timestamps are shown explicitly. This monitor is separate from the historical flood modeling research project.</footer>
+<footer>Compiled from public observation services and NOAA weather forecasts. A missing or delayed upstream observation may produce an older displayed value. Source timestamps are shown explicitly. NOAA weather forecasts are an optional, separate layer. This monitor is separate from the historical flood modeling research project.</footer>
 </main>
 <script id="model" type="application/json">/*__PAYLOAD__*/</script>
 <script>
 window.addEventListener('load', () => {
 const payload=JSON.parse(document.getElementById('model').textContent);
 const dat=payload.trident||{}; const stage=payload.williams_point||[];
+const forecast=payload.weather_forecast||{};
 const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'Not available';
 const last=a=>a&&a.length?a[a.length-1]:null;
 const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
@@ -85,12 +90,18 @@ for(const [name,series] of [['Williams Point',stage],['Trident wind',dat.wind],[
 }
 if(ageHours(payload.built_utc)>3) notices.push('Site build is over 3 hours old; scheduled updates may be delayed.');
 if(!last(dat.tide)||ageHours(last(dat.tide).t)>0) notices.push('Astronomical tide predictions do not cover the current time.');
+if(!forecast.updated_utc) notices.push('NOAA weather forecast unavailable.');
+else if(ageHours(forecast.updated_utc)>12) notices.push('NOAA weather forecast update is over 12 hours old; check the source.');
+for(const key of ['wind','gust','direction','rain','probability']){
+ if(forecast.updated_utc&&!(forecast[key]||[]).some(r=>r.v!=null&&Date.parse(r.end)>Date.now())) notices.push(`NOAA forecast ${key}: no valid future values.`);
+}
+document.getElementById('forecast-time').textContent=forecast.updated_utc?`NOAA / National Weather Service · updated ${fmt(forecast.updated_utc)} · ${forecast.location}`:'NOAA forecast unavailable this update.';
 for(const message of notices){const el=document.createElement('div');el.className='warning';el.textContent=message;document.getElementById('warnings').appendChild(el);}
 if(notices.length) document.getElementById('status-dot').classList.add('stale');
 const config={responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']};
-const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:55,r:16,t:10,b:50},font:{size:12,color:'#395766'},hovermode:'x unified',xaxis:{title:'UTC',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
+const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:60,r:60,t:10,b:65},font:{size:12,color:'#395766'},hovermode:'x unified',xaxis:{title:'UTC',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
 function draw(id,traces,opts={}){
- if(!traces.some(t=>t.x?.length)){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No observations available for this chart.</p>';return;}
+ if(!traces.some(t=>t.y?.some(v=>v!=null))){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No data available for this chart.</p>';return;}
  Plotly.newPlot(id,traces,{...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0}},config);
 }
 function line(arr,name,color,key='v'){
@@ -98,10 +109,41 @@ function line(arr,name,color,key='v'){
  for(const row of arr||[]){const previous=rows[rows.length-1];if(previous&&Date.parse(row.t)-Date.parse(previous.t)>maxGap) rows.push({t:row.t,[key]:null});rows.push(row);}
  return {x:rows.map(r=>r.t),y:rows.map(r=>r[key]),name,type:'scattergl',mode:key==='direction'?'markers':'lines',line:{color,width:2},connectgaps:false};
 }
-draw('stageplot',[line(stage,'Williams Point','#10799d')],{yaxis:{title:'Height (ft MHHW)'}});
+const observationEnd=Date.parse(payload.built_utc);
+const observationAxis={range:[new Date(observationEnd-7*864e5).toISOString(),new Date(observationEnd).toISOString()],autorange:false};
+draw('stageplot',[line(stage,'Williams Point','#10799d')],{xaxis:observationAxis,yaxis:{title:'Height (ft MHHW)'}});
 draw('tideplot',[line(dat.ocean,'Observed ocean','#10799d'),{...line(dat.tide,'Predicted tide','#dc8b3c'),line:{color:'#dc8b3c',dash:'dash',width:2}}],{yaxis:{title:'Height (m MLLW)'}});
-draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{margin:{r:42},yaxis:{title:'Speed (m/s)'},yaxis2:{title:'Direction (°)',overlaying:'y',side:'right',range:[0,360]}});
+draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),line(dat.wind,'Gust','#6b92a1','gust'),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{xaxis:observationAxis,yaxis:{title:'Speed (m/s)'},yaxis2:{title:'Direction (°)',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
 draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{yaxis:{title:'hPa'}});
+// NWS intervals remain intervals: never redistribute a rain total or fill gaps.
+const forecastStart=Math.max(Date.now(),Date.parse(payload.built_utc));
+const forecastAxis={range:[new Date(forecastStart).toISOString(),new Date(forecastStart+72*36e5).toISOString()],autorange:false};
+function forecastTrace(key,name,color,{axis='y',markers=false}={}){
+ const x=[],y=[],customdata=[];
+ for(const row of forecast[key]||[]){
+  if(Date.parse(row.end)<=forecastStart) continue;
+  const bounds=[row.t,row.end];
+  if(markers){x.push(new Date((Date.parse(row.t)+Date.parse(row.end))/2).toISOString());y.push(row.v);customdata.push(bounds);}
+  else {x.push(row.t,row.end,row.end);y.push(row.v,row.v,null);customdata.push(bounds,bounds,bounds);}
+ }
+ return {x,y,customdata,name,type:'scatter',mode:markers?'markers':'lines',yaxis:axis,
+  line:{color,width:2,dash:'dash'},marker:{color,size:5},connectgaps:false,
+  hovertemplate:'%{y:.1f}<br>%{customdata[0]} to %{customdata[1]}<extra>'+name+'</extra>'};
+}
+draw('forecast-windplot',[
+ forecastTrace('wind','Forecast wind (m/s)','#10799d'),
+ forecastTrace('gust','Forecast gust (m/s)','#6b92a1'),
+ forecastTrace('direction','Direction from (°)','#df8d37',{axis:'y2',markers:true})
+],{xaxis:forecastAxis,yaxis:{title:'Speed (m/s)',rangemode:'tozero'},yaxis2:{title:'From (°)',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
+const rain=(forecast.rain||[]).filter(row=>Date.parse(row.end)>forecastStart);
+draw('forecast-rainplot',[
+ {x:rain.map(r=>new Date((Date.parse(r.t)+Date.parse(r.end))/2).toISOString()),y:rain.map(r=>r.v),
+  width:rain.map(r=>(Date.parse(r.end)-Date.parse(r.t))*.95),customdata:rain.map(r=>[r.t,r.end]),
+  name:'Period precipitation (mm)',type:'bar',marker:{color:'#10799d'},
+  hovertemplate:'%{y:.2f} mm<br>%{customdata[0]} to %{customdata[1]}<extra>Forecast period total</extra>'},
+ forecastTrace('probability','Precipitation chance (%)','#df8d37',{axis:'y2'})
+],{xaxis:forecastAxis,yaxis:{title:'Period total (mm)',rangemode:'tozero'},yaxis2:{title:'Chance (%)',overlaying:'y',side:'right',range:[0,100]}});
+
 });
 </script>
 </body>

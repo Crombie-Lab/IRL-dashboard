@@ -1,0 +1,1 @@
+`nws_grid.json` is a small excerpt of the NOAA/NWS MLB/49,64 grid response fetched November 6, 2026 UTC (updateTime November 5, 2026 23:29:48 UTC). It retains the first four source intervals for each displayed weather variable, with original units and values. These are forecast periods, not measured observations. Tests modify copies for invalid/missing cases.

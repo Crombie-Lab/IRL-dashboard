@@ -1,6 +1,6 @@
 # Indian River Lagoon Observation Dashboard
 
-Separate **observational** dashboard for recent lagoon levels in Cocoa, Florida. It intentionally contains no flood model and no safety classification.
+Dashboard for recent **measured lagoon and coastal conditions** in Cocoa, Florida, with a separate **NOAA weather forecast** section. It intentionally contains no flood model and no safety classification.
 
 ## Publish rapidly on GitHub Pages
 
@@ -28,6 +28,7 @@ The build uses Python 3's standard library; there are no pip dependencies. Plotl
 
 - **Williams Point WIPF1:** Iowa Environmental Mesonet (IEM) HML processed **observations** for the last 14 days. Values are feet relative to MHHW, verified from the returned `Water Height (MHHW)[ft]` header. The production build rejects unknown units/datums rather than applying this label to an unverified column. Do not compare absolute heights with other sites until datum conversion is verified.
 - **Trident Pier 8721604:** NOAA CO-OPS for 7-day wind, atmospheric pressure and observed water levels (MLLW), plus predicted tides through the next 3 days. Wind and pressure use hourly sample data; ocean water levels use recent 6-minute data where available.
+- **NOAA / NWS weather forecast:** the grid covering the requested Cocoa-area point (28.3903, -80.8026), discovered via `api.weather.gov/points`. Forecast wind speed/gusts are converted from reported km/h to m/s; direction is degrees from true north. Precipitation is mm per original source interval, with probability in percent. Multi-hour totals are not split into hourly estimates. The grid represents an area, not a residential measurement or an observation at Trident Pier. Forecast update times and missing/stale status are visible; a forecast outage does not block publication of valid observations.
 - All plots display source timestamps and explicitly state that observations are not a road-flood warning. If WIPF1 fetching fails, the build fails and the previously published dashboard stays online; optional Trident sources may fail without blocking deployment and a warning is shown.
 - IEM services are third-party archives of NWS hydrological observations. HML records may be provisional, may have gaps, or may be delayed. This project is not an official NWS, NOAA, or USGS alert system.
 
@@ -35,7 +36,9 @@ The build uses Python 3's standard library; there are no pip dependencies. Plotl
 
 `briarwood-flood-monitor`: historical downloads, rainfall datasets, modeling, thresholds, validation, HPC and NAS archives.
 
-`IRL-dashboard`: public, read-only recent observations and simple hydrology explanations.
+`IRL-dashboard`: public, read-only recent observations, separately labeled NOAA weather forecasts, and simple hydrology explanations. No lagoon flood forecasts or safety classifications.
+
+The two main observation charts show water level and wind on identical default UTC ranges (past seven days) and equal plot margins. Williams Point retains 14 days of data for exploration. Tide and pressure remain secondary context. The two forecast charts share a separate next-72-hour default range; additional source periods remain available by zooming out.
 
 When research is validated, expose *small, versioned, reviewed data products* from the analysis repository, rather than coupling the live dashboard directly to its development code or bulk raw archives.
 

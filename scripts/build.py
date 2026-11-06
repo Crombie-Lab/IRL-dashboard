@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate a GitHub Pages lagoon dashboard from recent public observations.
 
-Requires Python 3.11+. Only Python standard library. No forecasting or alerts.
+Requires Python 3.11+. Only Python standard library. Includes separate NOAA weather forecasts; no flood modeling or alerts.
 """
 import csv
 import io
@@ -22,11 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / 'site'
 IEM = 'https://mesonet.agron.iastate.edu/cgi-bin/request/hml.py'
 COOPS = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter'
-HEADERS = {'User-Agent': 'IRL-dashboard/0.1 (public environmental data visualization)'}
+NWS_POINT = 'https://api.weather.gov/points/28.3903,-80.8026'
+HEADERS = {'User-Agent': 'IRL-dashboard/0.2 (https://github.com/Crombie-Lab/IRL-dashboard)'}
 
 
 def get_bytes(base, params, max_attempts=4):
-    url = base + '?' + urlencode(params)
+    url = base + ('?' + urlencode(params) if params else '')
     for attempt in range(max_attempts):
         try:
             with urlopen(Request(url, headers=HEADERS), timeout=45) as response:
@@ -154,6 +155,84 @@ def coops_recent(product, start, end, *, datum=None, interval=None):
     return parse_coops(get_bytes(COOPS, params), product)
 
 
+def nws_interval(value):
+    """Decode NWS ISO-8601 validTime without changing accumulation periods."""
+    start, duration = value.split('/')
+    start = datetime.fromisoformat(start.replace('Z', '+00:00'))
+    if start.tzinfo is None:
+        raise ValueError('NWS validTime lacks a timezone')
+    match = re.fullmatch(r'P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?', duration)
+    if not match:
+        raise ValueError('Unsupported NWS interval: ' + duration)
+    days, hours, minutes, seconds = (float(v or 0) for v in match.groups())
+    delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+    if not timedelta(0) < delta <= timedelta(days=14):
+        raise ValueError('Invalid NWS interval length')
+    return start.astimezone(UTC), (start + delta).astimezone(UTC)
+
+
+def parse_nws_grid(payload, now):
+    body = json.loads(payload)
+    properties = body.get('properties') if isinstance(body, dict) else None
+    if not isinstance(properties, dict) or not isinstance(properties.get('updateTime'), str):
+        raise ValueError('NWS grid lacks properties/updateTime')
+    updated = datetime.fromisoformat(properties['updateTime'].replace('Z', '+00:00'))
+    if updated.tzinfo is None:
+        raise ValueError('NWS updateTime lacks a timezone')
+    result = {'updated_utc': updated.astimezone(UTC).isoformat(), 'warnings': []}
+    fields = {
+        'windSpeed': ('wind', 'wmoUnit:km_h-1', 1 / 3.6, 0, 360),
+        'windGust': ('gust', 'wmoUnit:km_h-1', 1 / 3.6, 0, 360),
+        'windDirection': ('direction', 'wmoUnit:degree_(angle)', 1, 0, 360),
+        'quantitativePrecipitation': ('rain', 'wmoUnit:mm', 1, 0, math.inf),
+        'probabilityOfPrecipitation': ('probability', 'wmoUnit:percent', 1, 0, 100),
+    }
+    for field, (name, unit, factor, lower, upper) in fields.items():
+        source = properties.get(field, {})
+        if not isinstance(source, dict) or source.get('uom') != unit or not isinstance(source.get('values'), list):
+            raise ValueError('Missing or unverified NWS units/schema: ' + field)
+        rows, invalid = [], 0
+        for item in source['values']:
+            if not isinstance(item, dict):
+                invalid += 1
+                continue
+            try:
+                start, end = nws_interval(item['validTime'])
+            except (KeyError, ValueError, TypeError, AttributeError):
+                invalid += 1
+                continue
+            if end <= now:
+                continue
+            value = safe_float(item.get('value'))
+            if value is None or not lower <= value <= upper:
+                value = None
+                invalid += 1
+            rows.append({'t': start.isoformat(), 'end': end.isoformat(),
+                         'v': value * factor if value is not None else None})
+        result[name] = sorted(rows, key=lambda row: row['t'])
+        if invalid:
+            result['warnings'].append(f'NWS {name}: {invalid} missing/invalid forecast periods; not filled.')
+        if not any(row['v'] is not None for row in rows):
+            result['warnings'].append(f'NWS {name}: no future forecast values available.')
+    if not any(row['v'] is not None for name, *_ in fields.values() for row in result[name]):
+        raise ValueError('NWS grid has no future forecast values')
+    return result
+
+
+def nws_forecast(now):
+    point = json.loads(get_bytes(NWS_POINT, {}))['properties']
+    grid_url = point['forecastGridData']
+    if not re.fullmatch(r'https://api\.weather\.gov/gridpoints/[A-Z]{3}/\d+,\d+', grid_url):
+        raise ValueError('Unexpected NWS grid URL')
+    forecast = parse_nws_grid(get_bytes(grid_url, {}), now)
+    forecast.update({'provider': 'NOAA / National Weather Service',
+                     'location': 'Cocoa area (32926); 28.3903, -80.8026',
+                     'point_url': NWS_POINT, 'grid_url': grid_url,
+                     'units': {'wind': 'm/s', 'gust': 'm/s', 'direction': 'degrees from true north',
+                               'rain': 'mm per source interval', 'probability': '%'}})
+    return forecast
+
+
 def metrics(series):
     if not series:
         return {'count': 0, 'last': None, 'latest': None}
@@ -194,10 +273,17 @@ def run():
         except (HTTPError, URLError, ValueError, TimeoutError, json.JSONDecodeError) as exc:
             sources[name] = []
             warnings.append(f'{name}: {type(exc).__name__}: {exc}')
+    forecast = {}
+    try:
+        forecast = nws_forecast(now)
+        warnings.extend(forecast['warnings'])
+    except (HTTPError, URLError, ValueError, TimeoutError, KeyError, TypeError) as exc:
+        warnings.append(f'NOAA weather forecast unavailable: {type(exc).__name__}: {exc}')
     document = {
         'built_utc': now.isoformat(timespec='seconds'),
         'williams_point': stage,
         'trident': sources,
+        'weather_forecast': forecast,
         'status': {'williams_point': metrics(stage), **{k: metrics(v) for k,v in sources.items()}},
         'warnings': warnings,
         'source_notes': {'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1; Water Height (MHHW)[ft]',
@@ -209,6 +295,7 @@ def run():
     print(f'WIPF1 observations: {len(stage)} | latest {stage[-1]["t"]}')
     for label, series in sources.items():
         print(f'{label}: {len(series)} records')
+    print(f'NWS forecast updated: {forecast.get("updated_utc", "unavailable")}')
     if warnings:
         print('Source warnings: ' + ' | '.join(warnings), file=sys.stderr)
     print('Built site/index.html')
