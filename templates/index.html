@@ -24,7 +24,7 @@ header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
 .chart-help{margin:0 6px 14px}.chart-help button{font:inherit;color:#135b88;border:0;background:none;text-decoration:underline;cursor:pointer;padding:4px 8px}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
 .forecast-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 6px}.forecast-controls button{font:inherit;font-size:12px;padding:7px 12px;border:1px solid #b9cdd8;background:#fff;color:#28485a;border-radius:6px;cursor:pointer}.forecast-controls button[aria-pressed="true"]{background:#17667e;color:#fff;border-color:#17667e}
-.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .metric-value{color:#b42318}.plot.forecast-plot{height:400px}
+.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .metric-value{color:#b42318}.plot.forecast-plot,.plot.wind-plot{height:400px}
 .plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
 .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
 .explain h2{margin-bottom:7px}.explain p{margin:7px 0 13px}.meta{font-size:13px;color:#59717e}
@@ -55,7 +55,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 
 </section>
 <section class="stack" style="margin-top:24px" aria-label="Observed coastal wind">
- <article class="card plot-card"><div class="plot-head"><h2>Wind at Trident Pier</h2><p>Measured wind · NOAA 8721604 · direction shows where the wind comes from.</p></div><div id="windplot" class="plot"></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Wind at Trident Pier</h2><p>Measured wind · NOAA 8721604 · barbs point toward the wind source.</p></div><div id="windplot" class="plot wind-plot"></div></article>
 </section>
 <section class="twocol" style="margin-top:24px" aria-label="Additional coastal context">
  <article class="card plot-card"><div class="plot-head"><h2>Ocean level &amp; tide</h2><p>NOAA · Trident Pier 8721604 · feet MLLW, a different reference from Williams Point.</p><p id="ocean-time"></p></div><div id="tideplot" class="smallplot"></div></article>
@@ -262,13 +262,60 @@ const manualTraces=manualStyles.map(([id,name,color,symbol])=>{
   customdata:rows.map(r=>[fmtEastern(r.t),r.standard_position?'Depth at road center':'Depth at road center · nearby spot*']),
   hovertemplate:'%{y} in above road surface<br>%{customdata[0]}<br>%{customdata[1]}<extra>'+name+'</extra>'};
 });
+function addBarbTrack(gd,samples,onRange=()=>{}){
+ let signature='';
+ function updateBarbs(){
+  const range=gd.layout.xaxis.range;
+  const start=axisTime(range[0]),end=axisTime(range[1]);
+  const frame=gd.querySelector('.bglayer .bg')?.getBoundingClientRect();
+  const width=Math.max(120,frame?.width||gd.clientWidth-120),height=Math.max(120,frame?.height||gd.clientHeight-165);
+  const key=[start,end,width,height].join('|');
+  if(key===signature||!(end>start)) return;
+  signature=key;
+  onRange(start,end);
+  // A minimum three-hour spacing, increased on small screens or wide time ranges.
+  const step=Math.max(3,Math.ceil((end-start)/36e5/(width/70)))*36e5;
+  const images=[];
+  for(const {t,speed,direction:bearing} of samples(start,end,step)){
+   const time=Date.parse(t),edge=(end-start)*32/width;
+   if(speed==null||time-start<edge||end-time<edge) continue;
+   const svg=window.WindBarbs.svg(speed,bearing);
+   if(!svg) continue;
+   images.push({source:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),xref:'x',yref:'paper',
+    x:new Date(time).toISOString(),y:1+44/height,sizex:(end-start)*64/width,sizey:80/height,
+    xanchor:'center',yanchor:'middle',sizing:'contain',opacity:.9,layer:'above'});
+  }
+  Plotly.relayout(gd,{images});
+ }
+ gd.on('plotly_afterplot',updateBarbs);updateBarbs();
+}
 draw('stageplot',[line(stage,'Williams Point','#10799d'),...manualTraces],{
  xaxis:observationAxis,yaxis:{title:'Height (ft MHHW)'},
  yaxis2:{title:'Road depth (in)',overlaying:'y',side:'right',range:[0,Math.max(...manual.map(r=>r.depth_inches))*1.3||1],showgrid:false,zeroline:false},
  hovermode:'closest'
 });
 draw('tideplot',[line(dat.ocean,'Ocean level','#10799d','v',toFeet),{...line(dat.tide,'Tide prediction','#dc8b3c','v',toFeet),line:{color:'#dc8b3c',dash:'dash',width:2}}],{xaxis:observationAxis,yaxis:{title:'Height (ft MLLW)'}});
-draw('windplot',[line(dat.wind,'Wind','#10799d','speed',toMph),line(dat.wind,'Gust','#6b92a1','gust',toMph),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{xaxis:observationAxis,yaxis:{title:'Wind (mph)',rangemode:'tozero'},yaxis2:{title:'From',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
+const observedWind=line(dat.wind,'Wind','#10799d','speed',toMph);
+const windByTime=new Map((dat.wind||[]).map(row=>[row.t,row]));
+observedWind.customdata=observedWind.x.map(t=>{
+ const bearing=windByTime.get(t)?.direction;
+ return bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`;
+});
+observedWind.hovertemplate='%{y:.1f} mph<br>Wind from %{customdata}<extra>Wind</extra>';
+const observedWindPlot=draw('windplot',[
+ {...observedWind,mode:'lines+markers',marker:{size:4,color:'#10799d'}},
+ {...line(dat.wind,'Gust','#6b92a1','gust',toMph),mode:'lines+markers',marker:{size:4,color:'#6b92a1'},hovertemplate:'%{y:.1f} mph<extra>Gust</extra>'}
+],{margin:{t:100},xaxis:observationAxis,yaxis:{title:'Wind (mph)',rangemode:'tozero'}});
+if(observedWindPlot) observedWindPlot.then(gd=>addBarbTrack(gd,(start,end,step)=>{
+ const rows=[];let previousBucket=null,previousTime=-Infinity;
+ for(const row of dat.wind||[]){
+  const time=Date.parse(row.t),bucket=Math.floor(time/step);
+  if(bucket===previousBucket) continue;
+  previousBucket=bucket;
+  if(time>=start&&time<end&&time-previousTime>=step){rows.push(row);previousTime=time;}
+ }
+ return rows;
+}));
 draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{xaxis:observationAxis,yaxis:{title:'hPa'}});
 // Each marker represents a source period; lines never bridge missing intervals.
 const forecastStart=Math.max(Date.now(),Date.parse(payload.built_utc));
@@ -300,7 +347,6 @@ const forecastPlot=draw('forecastplot',[
 ],{margin:{t:100},xaxis:forecastAxis,yaxis:{title:'Wind (mph)',range:[0,speedMax*1.3]},yaxis2:{title:'Rain (in per period)',overlaying:'y',side:'right',rangemode:'tozero',showgrid:false},hovermode:'closest'});
 // Matplotlib-generated wind barbs, in a dedicated row clear of the forecast curves.
 if(forecastPlot) forecastPlot.then(gd=>{
- let signature='';
  function summarizeRain(start,end){
   const rows=(forecast.rain||[]).filter(r=>Date.parse(r.t)<end&&Date.parse(r.end)>start);
   const values=rows.filter(r=>r.v!=null).map(r=>toInches(r.v));
@@ -316,29 +362,12 @@ if(forecastPlot) forecastPlot.then(gd=>{
   if(wet&&Date.parse(wet.t)>=end) text+=` Later rain starts ${fmtEastern(wet.t)}. See Full forecast.`;
   document.getElementById('precip-summary').textContent=text;
  }
- function updateBarbs(){
-  const range=gd.layout.xaxis.range;
-  const start=axisTime(range[0]),end=axisTime(range[1]);
-  const frame=gd.querySelector('.bglayer .bg')?.getBoundingClientRect();
-  const width=Math.max(120,frame?.width||gd.clientWidth-120),height=Math.max(120,frame?.height||gd.clientHeight-165);
-  const key=[start,end,width,height].join('|');
-  if(key===signature||!(end>start)) return;
-  signature=key;
-  summarizeRain(start,end);
-  // A minimum three-hour spacing, increased on small screens or wide time ranges.
-  const step=Math.max(3,Math.ceil((end-start)/36e5/(width/70)))*36e5;
-  const images=[];
-  for(let time=Math.ceil(Math.max(start,forecastStart)/step)*step;time<end;time+=step){
-   const speed=valueAt('wind',time),bearing=valueAt('direction',time);
-   if(speed==null) continue;
-   const svg=window.WindBarbs.svg(speed,bearing);
-   if(!svg) continue;
-   images.push({source:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),xref:'x',yref:'paper',
-    x:new Date(time).toISOString(),y:1+44/height,sizex:(end-start)*64/width,sizey:80/height,
-    xanchor:'center',yanchor:'middle',sizing:'contain',opacity:.9,layer:'above'});
-  }
-  Plotly.relayout(gd,{images});
- }
+ addBarbTrack(gd,(start,end,step)=>{
+  const rows=[];
+  for(let time=Math.ceil(Math.max(start,forecastStart)/step)*step;time<end;time+=step)
+   rows.push({t:new Date(time).toISOString(),speed:valueAt('wind',time),direction:valueAt('direction',time)});
+  return rows;
+ },summarizeRain);
  function setRange(full){
   document.getElementById('forecast-72h').setAttribute('aria-pressed',String(!full));
   document.getElementById('forecast-full').setAttribute('aria-pressed',String(full));
@@ -346,7 +375,6 @@ if(forecastPlot) forecastPlot.then(gd=>{
  }
  document.getElementById('forecast-72h').addEventListener('click',()=>setRange(false));
  document.getElementById('forecast-full').addEventListener('click',()=>setRange(true));
- gd.on('plotly_afterplot',updateBarbs);updateBarbs();
 });
 
 });
