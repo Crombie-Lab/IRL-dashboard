@@ -111,7 +111,7 @@ document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inc
 document.getElementById('manual-method').textContent=deepRoad?.deep_edge_depth_inches!=null?'Center → deep edge':'Road center';
 document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood · measured ${fmtEastern(deepRoad.t)}`:'No manual depth measurement available.';
 document.getElementById('manual-caption').textContent=manual.length?`Road-center dots use inches on the right, a separate scale from the lagoon. Last measured ${fmtEastern(last(manual).t)}.`:'No road-depth readings.';
-document.getElementById('refresh').textContent=`Updated ${built}`;
+document.getElementById('refresh').textContent=`Site updated ${built}`;
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
 const ocean=last(dat.ocean);
@@ -191,12 +191,16 @@ function refreshStatus(){
 refreshRainCard();
 refreshQuality();
 const notices=[...(payload.warnings||[])];
+const siteDelayed=ageHours(payload.built_utc)>3;
+document.getElementById('refresh').textContent=`Site updated ${built}${siteDelayed?' · updates delayed':''}`;
+document.getElementById('stage-time').textContent=latest?`Observed ${fmt(latest.t)} · ft MHHW${ageHours(latest.t)>3?' · delayed':''}`:'No observation';
+document.getElementById('wind-time').textContent=w?`${w.direction==null?'Direction unavailable':'From '+direction(w.direction)} · ${fmt(w.t)}${ageHours(w.t)>3?' · delayed':''}`:'Wind unavailable this update';
 for(const [name,series] of [['Williams Point',stage],['Trident wind',dat.wind],['Trident pressure',dat.pressure],['Trident ocean observations',dat.ocean]]){
  const record=last(series);
  if(!record) notices.push(`${name}: observations unavailable.`);
  else if(ageHours(record.t)>3) notices.push(`${name}: stale observation (over 3 hours old), latest ${fmt(record.t)}.`);
 }
-if(ageHours(payload.built_utc)>3) notices.push('Site build is over 3 hours old; scheduled updates may be delayed.');
+if(siteDelayed) notices.push('Site update is over 3 hours old; scheduled publication may be delayed.');
 if(!last(dat.tide)||ageHours(last(dat.tide).t)>0) notices.push('Astronomical tide predictions do not cover the current time.');
 if(!forecast.updated_utc) notices.push('NOAA weather forecast unavailable.');
 else if(ageHours(forecast.updated_utc)>12) notices.push('NOAA weather forecast update is over 12 hours old; check the source.');
@@ -206,7 +210,8 @@ for(const key of ['wind','gust','direction','rain']){
 document.getElementById('forecast-time').textContent=forecast.updated_utc?`NOAA / NWS · updated ${fmt(forecast.updated_utc)}`:'NOAA forecast unavailable this update.';
 document.getElementById('warnings').replaceChildren();
 for(const message of notices){const el=document.createElement('div');el.className='warning';el.textContent=message;document.getElementById('warnings').appendChild(el);}
-document.getElementById('status-dot').classList.toggle('stale',notices.length>0);
+// Publication age is independent of individual source outages or data-quality notices.
+document.getElementById('status-dot').classList.toggle('stale',siteDelayed);
 }
 refreshStatus();
 setInterval(refreshStatus,60000);

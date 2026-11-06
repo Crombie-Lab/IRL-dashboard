@@ -77,6 +77,8 @@ The page keeps short neighborhood-facing captions. Detailed source, datum, sampl
 
 The hourly GitHub schedule is best effort: scheduled runs can be delayed or dropped even while the workflow is enabled. A manual Actions dispatch rebuilds the site without a code change. The page checks a small `update.json` publication marker every five minutes while visible and when returning to the tab, reloading a newer published snapshot with cache revalidation. Freshness notices are recalculated each minute even if no new publication arrives. Poll failures preserve the currently displayed data; they do not mark old observations as fresh. This browser check cannot trigger a missed Actions run or provide guaranteed hourly updates.
 
+The top status dot and “Site updated” timestamp describe publication freshness only: amber means the published build is over three hours old. Individual missing/delayed feeds and quality notices remain labeled by source; a failed optional fetch does not turn the whole site amber. Williams Point and wind cards also mark their own observations delayed after three hours. Optional NOAA and SJRWMD outages do not block other feeds; failure of mandatory Williams Point after bounded HTTP retries preserves the previous publication. Forecast freshness uses its separate twelve-hour threshold. The hourly schedule cannot guarantee unattended hourly publication during GitHub scheduler gaps or Pages outages; a separately authorized external trigger would be needed to reduce dependence on that scheduler.
+
 
 ## Next rain card
 

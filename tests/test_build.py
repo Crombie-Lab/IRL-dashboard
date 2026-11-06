@@ -6,7 +6,7 @@ import io
 from datetime import timedelta
 import unittest
 from unittest.mock import patch
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -184,6 +184,30 @@ class TestParsing(unittest.TestCase):
         for call in coops.call_args_list:
             self.assertEqual(call.args[1], now - timedelta(days=14))
             self.assertEqual(call.args[2], now + timedelta(days=3) if call.args[0] == 'predictions' else now)
+
+    def test_one_optional_fetch_failure_preserves_other_feeds(self):
+        fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
+        good = [{'t': '2026-11-06T12:00+00:00', 'v': 1}]
+        for failed in ('wind', 'air_pressure', 'water_level', 'predictions'):
+            def fetch(product, *args, **kwargs):
+                if product == failed:
+                    raise URLError('simulated feed outage')
+                return good
+            with self.subTest(failed=failed), patch.object(mod, 'get_bytes', return_value=fixture), \
+                    patch.object(mod, 'coops_recent', side_effect=fetch), \
+                    patch.object(mod, 'nws_forecast', return_value={'warnings': []}), \
+                    patch.object(mod, 'water_quality_recent', return_value={}), \
+                    patch.object(mod, 'render') as render:
+                mod.run()
+                document = render.call_args.args[0]
+                self.assertTrue(document['williams_point'])
+                self.assertEqual(len(document['warnings']), 1)
+                failed_key = {'air_pressure': 'pressure', 'water_level': 'ocean', 'predictions': 'tide'}.get(failed, failed)
+                self.assertTrue(document['warnings'][0].startswith(failed_key + ':'))
+                self.assertEqual(document['trident'][failed_key], [])
+                for key, rows in document['trident'].items():
+                    if key != failed_key:
+                        self.assertEqual(rows, good)
 
     def test_iem_water_height_mhhw(self):
         fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
