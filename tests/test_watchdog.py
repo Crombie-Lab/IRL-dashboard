@@ -230,6 +230,14 @@ class TestWatchdog(unittest.TestCase):
         self.assertEqual(installer.main(['--directory', str(directory)]), 1)
         self.assertFalse(directory.exists())
 
+    def test_installer_refuses_token_prompt_when_echo_cannot_be_disabled(self):
+        directory = self.root / 'install'
+        with patch.object(installer.getpass, 'getpass', side_effect=installer.getpass.GetPassWarning), \
+                patch.object(installer.subprocess, 'run') as run:
+            self.assertEqual(installer.main(['--directory', str(directory), '--set-token', '--install-cron']), 1)
+            run.assert_not_called()
+        self.assertFalse((directory / 'token').exists())
+
     def test_explicit_installer_backs_up_and_verifies_preserved_cron(self):
         directory = self.root / 'install'
         existing = '# Existing unrelated cron\n5 * * * * /private/job\n'

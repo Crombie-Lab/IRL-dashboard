@@ -9,6 +9,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import warnings
 
 import watchdog
 
@@ -64,7 +65,12 @@ def main(argv=None):
         root = watchdog.private_directory(args.directory)
         atomic_write(root / 'watchdog.py', Path(__file__).with_name('watchdog.py').read_bytes())
         if args.set_token:
-            token = getpass.getpass('Dedicated fine-grained GitHub token (hidden): ').strip()
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter('error', getpass.GetPassWarning)
+                    token = getpass.getpass('Dedicated fine-grained GitHub token (hidden): ').strip()
+            except getpass.GetPassWarning:
+                raise watchdog.WatchdogError('Use an interactive terminal with hidden input; token was not saved') from None
             if not re.fullmatch(r'github_pat_[A-Za-z0-9_]{20,4000}', token):
                 raise watchdog.WatchdogError('Token format rejected; nothing saved')
             atomic_write(root / 'token', (token + '\n').encode())
