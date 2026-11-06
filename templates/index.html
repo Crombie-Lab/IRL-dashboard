@@ -39,17 +39,20 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <div class="status"><span class="dot" id="status-dot"></span><span id="refresh">Loading data timestamp…</span></div>
 <div id="warnings"></div>
 <div class="metrics">
- <div class="card manual-depth"><div class="metric-label">Indian River Drive · latest manual depth</div><div id="manual-now" class="metric-value">—</div><div id="manual-time" class="metric-caption">—</div></div>
+ <div class="card manual-depth"><div class="metric-label">Indian River Drive - latest depth north of briarwood</div><div id="manual-now" class="metric-value">—</div><div id="manual-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Williams Point · latest observed level</div><div id="stage-now" class="metric-value">—</div><div id="stage-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · latest wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · latest barometric pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
 </div>
 <section class="stack" aria-label="Measured observations">
  <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot"></div><div class="plot-head"><p id="manual-caption"></p><p>Colored markers: depth at road center, in inches on the right axis. Gauge height uses feet relative to MHHW on the left. These independent axes have different references; their visual overlap does not establish a conversion or relationship. The first north-culvert reading (open circle, *) was nearby rather than at the later standard spot; the three visits do not establish a relationship with Williams Point.</p></div><details class="manual-details"><summary>Manual readings and sampling notes</summary><div class="table-scroll"><table><caption>User-reported spot measurements, transcribed from the supplied screenshot. Original times are EST; no measurement precision or instrument uncertainty was supplied.</caption><thead><tr><th scope="col">Measured (Eastern)</th><th scope="col">Location</th><th scope="col">Depth (in)</th><th scope="col">Sampling note</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
- <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
+
 </section>
 <section style="margin-top:24px" aria-label="NOAA weather forecast">
- <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · wind &amp; precipitation</h2><p>Cocoa area (32926). Wind and gusts: m/s on the left; precipitation: mm per NOAA period on the right. Default view: next 72 hours.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p><p id="precip-summary" aria-live="polite"></p></div><div class="forecast-controls" role="group" aria-label="Forecast time range"><button id="forecast-72h" type="button" aria-pressed="true">Next 72 hours</button><button id="forecast-full" type="button" aria-pressed="false">Full forecast</button></div><div id="forecastplot" class="plot forecast-plot"></div><div class="plot-head"><p>Barbs point toward the wind source. Half feather = 5 knots, full feather = 10, triangle = 50; circles represent speeds rounded below 2.5 knots. Rain points show full NOAA-period totals, usually 6 hours, including any part before now. Connecting lines are visual guides, not hourly estimates. Hover for details. Forecasts may change.</p></div></article>
+ <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · wind &amp; precipitation</h2><p>Cocoa area (32926). Wind and gusts: m/s on the left; precipitation: mm per NOAA period on the right. Default view: full available forecast; use Next 72 hours for a closer look.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p><p id="precip-summary" aria-live="polite"></p></div><div class="forecast-controls" role="group" aria-label="Forecast time range"><button id="forecast-72h" type="button" aria-pressed="false">Next 72 hours</button><button id="forecast-full" type="button" aria-pressed="true">Full forecast</button></div><div id="forecastplot" class="plot forecast-plot"></div><div class="plot-head"><p>Barbs point toward the wind source. Half feather = 5 knots, full feather = 10, triangle = 50; circles represent speeds rounded below 2.5 knots. Rain points show full NOAA-period totals, usually 6 hours, including any part before now. Connecting lines are visual guides, not hourly estimates. Hover for details. Forecasts may change.</p></div></article>
+</section>
+<section class="stack" style="margin-top:24px" aria-label="Observed coastal wind">
+ <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
 </section>
 <section class="twocol" style="margin-top:24px" aria-label="Additional coastal context">
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier · ocean &amp; astronomical tide</h2><p>Observed ocean level and predicted astronomical tide, meters relative to MLLW. Absolute heights are not directly comparable with Williams Point.</p><p id="ocean-time"></p></div><div id="tideplot" class="smallplot"></div></article>
@@ -146,7 +149,8 @@ draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),line(dat.wind,'Gu
 draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{yaxis:{title:'hPa'}});
 // Each marker represents a source period; lines never bridge missing intervals.
 const forecastStart=Math.max(Date.now(),Date.parse(payload.built_utc));
-const forecastAxis={range:[new Date(forecastStart).toISOString(),new Date(forecastStart+72*36e5).toISOString()],autorange:false};
+const forecastEnd=Math.max(forecastStart,...['wind','gust','rain'].flatMap(key=>(forecast[key]||[]).map(r=>Date.parse(r.end))));
+const forecastAxis={range:[new Date(forecastStart).toISOString(),new Date(forecastEnd).toISOString()],autorange:false};
 function valueAt(key,time){
  const row=(forecast[key]||[]).find(r=>Date.parse(r.t)<=time&&time<Date.parse(r.end));
  return row?.v??null;
@@ -166,7 +170,6 @@ function forecastTrace(key,name,color,axis='y'){
   hovertemplate:'%{y:.2f}<br>%{customdata[0]} to %{customdata[1]}'+(key==='wind'?'<br>From %{customdata[2]} at period midpoint':'')+'<extra>'+name+'</extra>'};
 }
 const speedMax=Math.max(1,...[...(forecast.wind||[]),...(forecast.gust||[])].map(r=>r.v??0));
-const forecastEnd=Math.max(forecastStart,...['wind','gust','rain'].flatMap(key=>(forecast[key]||[]).map(r=>Date.parse(r.end))));
 const forecastPlot=draw('forecastplot',[
  forecastTrace('wind','Wind (m/s)','#10799d'),
  forecastTrace('gust','Gust (m/s)','#6b92a1'),
