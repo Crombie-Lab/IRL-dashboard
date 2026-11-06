@@ -221,8 +221,8 @@ class TestParsing(unittest.TestCase):
                 self.assertIn('"v":1.5',html)
                 self.assertEqual(json.loads((Path(d) / 'update.json').read_text()), {'built_utc':'2026-11-04T15:00:00+00:00'})
                 self.assertTrue((Path(d) / '.nojekyll').exists())
-                self.assertTrue((Path(d) / 'assets/vendor/wind-barbs.js').is_file())
-                self.assertIn('MIT License', (Path(d) / 'assets/vendor/wind-barbs.LICENSE').read_text())
+                self.assertTrue((Path(d) / 'assets/vendor/matplotlib-barbs.js').is_file())
+                self.assertIn('MATPLOTLIB', (Path(d) / 'assets/vendor/matplotlib.LICENSE').read_text())
                 self.assertTrue((Path(d) / 'assets/wind-barb-adapter.js').is_file())
             finally:
                 mod.SITE = original_site
