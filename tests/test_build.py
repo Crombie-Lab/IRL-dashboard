@@ -29,6 +29,8 @@ class TestParsing(unittest.TestCase):
             ('2026-11-05T14:30+00:00', 'briarwood_entrance'): 2.75,
             ('2026-11-05T22:30+00:00', 'indian_river_north'): 6.25,
             ('2026-11-05T22:30+00:00', 'briarwood_entrance'): 1.125,
+            ('2026-11-06T13:15+00:00', 'indian_river_north'): 4.25,
+            ('2026-11-06T13:15+00:00', 'briarwood_entrance'): 0,
         }
         self.assertEqual({(r['t'],r['location_id']):r['depth_inches'] for r in readings}, expected)
         nonstandard = [r for r in readings if not r['standard_position']]
@@ -37,6 +39,34 @@ class TestParsing(unittest.TestCase):
         self.assertIn('Not a standard location', nonstandard[0]['original_notes'])
         self.assertTrue(all(r['notes']=='depth at road center' for r in readings))
         self.assertTrue(all(r['original_time'].endswith('-05:00') for r in readings))
+
+    def test_manual_measured_edge_and_unmeasured_notes(self):
+        payload = (MOD_PATH.parents[1] / 'tests/fixtures/manual_depths_with_edge.csv').read_bytes()
+        readings = mod.parse_manual_depths(payload)
+        north = next(r for r in readings if r['location_id'] == 'indian_river_north')
+        briarwood = next(r for r in readings if r['location_id'] == 'briarwood_entrance')
+        self.assertEqual(north['t'], '2026-11-06T13:15+00:00')
+        self.assertEqual(north['original_time'], '2026-11-06T08:15:00-05:00')
+        self.assertEqual(north['depth_inches'], 4.25)
+        self.assertEqual(north['deep_edge_depth_inches'], 9.5)
+        self.assertEqual(briarwood['depth_inches'], 0)
+        self.assertIsNone(briarwood['deep_edge_depth_inches'])
+        self.assertIn('not measured', briarwood['original_notes'])
+        old = mod.parse_manual_depths(self.manual_fixture())
+        self.assertTrue(all(r['deep_edge_depth_inches'] is None for r in old))
+        reader = csv.DictReader(io.StringIO(payload.decode()))
+        row = next(reader)
+        for edge in ['NaN', 'inf', '-1', '4', 'unknown']:
+            out = io.StringIO()
+            writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
+            writer.writeheader(); writer.writerow({**row, 'deep_edge_depth_inches': edge})
+            with self.subTest(edge=edge), self.assertRaisesRegex(ValueError, 'deep-edge'):
+                mod.parse_manual_depths(out.getvalue().encode())
+        # A measured zero at both locations is distinct from an unmeasured edge.
+        out = io.StringIO()
+        writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
+        writer.writeheader(); writer.writerow({**row, 'water_depth_inches':'0', 'deep_edge_depth_inches':'0'})
+        self.assertEqual(mod.parse_manual_depths(out.getvalue().encode())[0]['deep_edge_depth_inches'], 0)
 
     def test_manual_fixture_and_rejected_invalid_rows(self):
         payload = self.manual_fixture()

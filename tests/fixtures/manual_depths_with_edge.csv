@@ -1,0 +1,3 @@
+observed_at,location_id,water_depth_inches,standard_position,notes,original_notes,deep_edge_depth_inches
+2026-11-06T08:15:00-05:00,indian_river_north,4.25,true,depth at road center,4.25-9.5 (center - deep edge),9.5
+2026-11-06T08:15:00-05:00,briarwood_entrance,0,true,depth at road center,0 - 3 to 6 inches on deep edge but not measured,

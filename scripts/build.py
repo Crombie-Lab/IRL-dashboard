@@ -300,6 +300,12 @@ def parse_manual_depths(payload):
             depth = safe_float(row['water_depth_inches'])
             if depth is None or depth < 0:
                 raise ValueError('Invalid manual water depth')
+            edge_raw = row.get('deep_edge_depth_inches', '')
+            edge = None
+            if edge_raw and edge_raw.strip():
+                edge = safe_float(edge_raw)
+                if edge is None or edge < depth:
+                    raise ValueError('Invalid measured deep-edge depth')
             if row['standard_position'] not in ('true', 'false'):
                 raise ValueError('Invalid manual position flag')
             if not isinstance(row['notes'], str) or not row['notes'].strip():
@@ -310,6 +316,7 @@ def parse_manual_depths(payload):
             seen.add(key)
             readings.append({'t': timestamp, 'original_time': original, 'location_id': location,
                              'location': MANUAL_LOCATIONS[location], 'depth_inches': depth,
+                             'deep_edge_depth_inches': edge,
                              'standard_position': row['standard_position'] == 'true',
                              'notes': row['notes'].strip(),
                              'original_notes': row.get('original_notes', row['notes']).strip()})
@@ -377,7 +384,7 @@ def run():
         'weather_forecast': forecast,
         'status': {'williams_point': metrics(stage), **{k: metrics(v) for k,v in sources.items()}},
         'warnings': warnings,
-        'source_notes': {'manual_depths': 'User-reported road-center spot depths, inches over local road surface; transcribed from supplied screenshot; original times explicitly EST (UTC-05:00). Positions and method notes retained; not datum-referenced gauge heights.',
+        'source_notes': {'manual_depths': 'User-reported road-center spot depths with separately recorded measured deep-edge depths when supplied, inches over local road surface; transcribed from supplied screenshot; original times explicitly EST (UTC-05:00). Positions and method notes retained; not datum-referenced gauge heights.',
                          'stage': 'Iowa Environmental Mesonet HML observation archive; WIPF1; Water Height (MHHW)[ft]',
                          'iem_request': stage_params,
                          'noaa_request': {'station': '8721604', 'units': 'metric', 'time_zone': 'gmt', 'datum': 'MLLW (water levels and astronomical tides only)'},

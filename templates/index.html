@@ -40,14 +40,14 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <div class="status"><span class="dot" id="status-dot"></span><span id="refresh">Loading data timestamp…</span></div>
 <div id="warnings"></div>
 <div class="metrics">
- <div class="card manual-depth"><div class="metric-label">Indian River Drive · road depth</div><div id="manual-now" class="metric-value">—</div><div id="manual-time" class="metric-caption">—</div></div>
+ <div class="card manual-depth"><div class="metric-label">Indian River Drive · road depth</div><div id="manual-now" class="metric-value">—</div><div id="manual-method" class="metric-caption">—</div><div id="manual-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Williams Point · water level</div><div id="stage-now" class="metric-value">—</div><div id="stage-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">NOAA · next rain forecast</div><div id="rain-now" class="metric-value">—</div><div id="rain-chance" class="metric-caption">—</div><div id="rain-time" class="metric-caption">—</div><div id="rain-note" class="metric-caption" hidden></div></div>
 </div>
 <div class="chart-help caption">Drag charts left or right. Tap or hover for readings. <button id="reset-views" type="button">Reset views</button></div>
 <section class="stack" aria-label="Measured observations">
- <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level</h2><p>IEM / NWS · WIPF1 · lagoon level in feet MHHW.</p></div><div id="stageplot" class="plot"></div><div class="plot-head"><p id="manual-caption"></p></div><details class="manual-details"><summary>Road-depth readings</summary><div class="table-scroll"><table><caption>Depth at road center. * First Indian River Drive reading used a nearby spot. These are separate spot measurements, not a live road monitor.</caption><thead><tr><th scope="col">Time (Eastern)</th><th scope="col">Location</th><th scope="col">Depth (in)</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level</h2><p>IEM / NWS · WIPF1 · lagoon level in feet MHHW.</p></div><div id="stageplot" class="plot"></div><div class="plot-head"><p id="manual-caption"></p></div><details class="manual-details"><summary>Road-depth readings</summary><div class="table-scroll"><table><caption>Only center depths are plotted. * First Indian River Drive reading used a nearby spot. These are separate spot measurements, not a live road monitor.</caption><thead><tr><th scope="col">Time (Eastern)</th><th scope="col">Location</th><th scope="col">Center (in)</th><th scope="col">Measured deep edge (in)</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
 
 </section>
 <section style="margin-top:24px" aria-label="NOAA weather forecast">
@@ -88,7 +88,7 @@ const fmtUTC=t=>new Date(t).toLocaleString(undefined,{timeZone:'UTC',month:'shor
 const fmtEastern=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
 for(const row of manual){
  const tr=document.createElement('tr');
- for(const value of [fmtEastern(row.t),row.location,String(row.depth_inches)+(row.standard_position?'':'*')]){const td=document.createElement('td');td.textContent=value;tr.appendChild(td);}
+ for(const value of [fmtEastern(row.t),row.location,String(row.depth_inches)+(row.standard_position?'':'*'),row.deep_edge_depth_inches==null?'—':String(row.deep_edge_depth_inches)]){const td=document.createElement('td');td.textContent=value;tr.appendChild(td);}
  document.getElementById('manual-readings').appendChild(tr);
 }
 // Source JSON retains metric units; convert only for display. Preserve missing values.
@@ -101,9 +101,10 @@ const last=a=>a&&a.length?a[a.length-1]:null;
 const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
 const built=fmt(payload.built_utc);const latest=last(stage);
 const deepRoad=last(manual.filter(r=>r.location_id==='indian_river_north'));
-document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inches} in`:'Unavailable';
+document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inches}${deepRoad.deep_edge_depth_inches==null?'':'–'+deepRoad.deep_edge_depth_inches} in`:'Unavailable';
+document.getElementById('manual-method').textContent=deepRoad?.deep_edge_depth_inches!=null?'Center → deep edge':'Road center';
 document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood · measured ${fmtEastern(deepRoad.t)}`:'No manual depth measurement available.';
-document.getElementById('manual-caption').textContent=manual.length?`Road-depth dots use inches on the right, a separate scale from the lagoon. Last measured ${fmtEastern(last(manual).t)}.`:'No road-depth readings.';
+document.getElementById('manual-caption').textContent=manual.length?`Road-center dots use inches on the right, a separate scale from the lagoon. Last measured ${fmtEastern(last(manual).t)}.`:'No road-depth readings.';
 document.getElementById('refresh').textContent=`Updated ${built}`;
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
@@ -211,7 +212,7 @@ function fixedHeight(traces,axis,options={}){
 function draw(id,traces,opts={}){
  if(!traces.some(t=>t.y?.some(v=>v!=null))){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No data available.</p>';return;}
  const times=traces.flatMap(t=>(t.x||[]).filter((_,i)=>t.y?.[i]!=null).map(axisTime)).filter(Number.isFinite);
- const bounds={minallowed:new Date(Math.max(Math.min(...times),Date.parse(payload.built_utc)-14*864e5)).toISOString(),maxallowed:new Date(Math.max(...times)).toISOString()};
+ const bounds={minallowed:new Date(Math.max(Math.min(...times),Date.parse(payload.built_utc)-14*864e5)).toISOString(),maxallowed:new Date(Math.max(...times,observationEnd)).toISOString()};
  const layout={...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...bounds,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0,itemdoubleclick:false}};
  // Short or delayed feeds get a narrower/clamped view rather than an empty window.
  const axis=layout.xaxis,low=axisTime(axis.minallowed),high=axisTime(axis.maxallowed);
@@ -251,7 +252,9 @@ function line(arr,name,color,key='v',convert=v=>v){
 }
 // Align recent feeds; a stale optional source must not move all plots into the past.
 const stageEnd=Date.parse(latest?.t||payload.built_utc);
-const observationEnd=Math.min(stageEnd,...[dat.wind,dat.pressure,dat.ocean].map(a=>Date.parse(last(a)?.t)).filter(t=>Number.isFinite(t)&&t>=stageEnd-3*36e5));
+const gaugeEnd=Math.min(stageEnd,...[dat.wind,dat.pressure,dat.ocean].map(a=>Date.parse(last(a)?.t)).filter(t=>Number.isFinite(t)&&t>=stageEnd-3*36e5));
+// Recent manual readings may arrive ahead of the gauge archive; keep them visible.
+const observationEnd=Math.max(gaugeEnd,Date.parse(last(manual)?.t)||gaugeEnd);
 const observationAxis={range:[new Date(observationEnd-3*864e5).toISOString(),new Date(observationEnd).toISOString()],autorange:false};
 const manualStyles=[['briarwood_entrance','Briarwood Lane (in)','#ae642b','diamond'],['indian_river_north','Indian River Dr (in)','#7955a6','circle']];
 const manualTraces=manualStyles.map(([id,name,color,symbol])=>{
