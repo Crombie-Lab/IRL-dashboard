@@ -6,6 +6,7 @@
 <title>Indian River Lagoon | Water Monitor</title>
 <meta name="description" content="Recent measured water levels, winds, and tides near Cocoa, Florida." />
 <script src="https://cdn.plot.ly/plotly-2.35.3.min.js" defer></script>
+<script src="assets/vendor/wind-barbs.js" defer></script>
 <style>
 :root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#132b3b;background:#f3f7fa}
 *{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:0 auto;padding:25px 19px 70px}
@@ -14,18 +15,19 @@ header{padding:34px 24px;background:linear-gradient(110deg,#12344e,#17667e);colo
 header .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#bfe7e7;font-weight:800}
 h1{font-size:clamp(26px,4vw,40px);margin:10px 0 4px;letter-spacing:-.045em}h2{font-size:19px;letter-spacing:-.02em;margin:0}
 header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
-.row{display:flex;gap:15px;flex-wrap:wrap}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 26px}
+.row{display:flex;gap:15px;flex-wrap:wrap}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:20px 0 26px}
 .card{background:#fff;border:1px solid #e1eaf0;border-radius:14px;box-shadow:0 3px 18px #102d4410;padding:19px}
 .metric-label{font-size:13px;color:#5c7080;font-weight:650}.metric-value{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.03em;margin:7px 0 4px}
 .metric-caption,.caption{font-size:12px;color:#647887;line-height:1.5}.status{display:flex;align-items:center;gap:8px;margin:16px 0 18px;color:#415b69;font-size:13px}
 .dot{height:10px;width:10px;border-radius:100%;display:inline-block;background:#1ca876}.dot.stale{background:#c47924}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
-.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.plot.manual-plot{height:490px}
+.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .metric-value{color:#b42318}.plot.forecast-plot{height:400px}
 .plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
 .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
 .explain h2{margin-bottom:7px}.explain p{margin:7px 0 13px}.meta{font-size:13px;color:#59717e}
 .warning{background:#fff8ea;border:1px solid #eed9ab;padding:12px;border-radius:9px;font-size:13px;color:#6d4c13;margin-bottom:16px}
 footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
+@media(min-width:701px) and (max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.metrics,.twocol{grid-template-columns:1fr}main{padding:14px 12px 40px}header{padding:26px 20px}.plot{height:300px}.smallplot{height:270px}}
 </style>
 </head>
@@ -35,17 +37,17 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <div class="status"><span class="dot" id="status-dot"></span><span id="refresh">Loading data timestamp…</span></div>
 <div id="warnings"></div>
 <div class="metrics">
+ <div class="card manual-depth"><div class="metric-label">Indian River Drive · latest manual depth</div><div id="manual-now" class="metric-value">—</div><div id="manual-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Williams Point · latest observed level</div><div id="stage-now" class="metric-value">—</div><div id="stage-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · latest wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · latest barometric pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
 </div>
 <section class="stack" aria-label="Measured observations">
- <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot manual-plot"></div><div class="plot-head"><p id="manual-caption"></p><p>Lower band: manual water depths in inches above the local road surface, measured at the road center at the deepest sampled points in the larger puddles. Colors identify locations; dashed lines align sampling times with the gauge above. Depths and gauge heights have different references. The first north-culvert reading (open circle, *) was nearby rather than at the later standard spot; the three visits do not establish a relationship with Williams Point.</p></div><details class="manual-details"><summary>Manual readings and sampling notes</summary><div class="table-scroll"><table><caption>User-reported spot measurements, transcribed from the supplied screenshot. Original times are EST; no measurement precision or instrument uncertainty was supplied.</caption><thead><tr><th scope="col">Measured (Eastern)</th><th scope="col">Location</th><th scope="col">Depth (in)</th><th scope="col">Sampling note</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level · observations</h2><p>Feet relative to MHHW. Default view: past 7 days, on the same UTC time scale as wind below. This gauge level is not road water depth.</p></div><div id="stageplot" class="plot"></div><div class="plot-head"><p id="manual-caption"></p><p>Colored markers: depth at road center, in inches on the right axis. Gauge height uses feet relative to MHHW on the left. These independent axes have different references; their visual overlap does not establish a conversion or relationship. The first north-culvert reading (open circle, *) was nearby rather than at the later standard spot; the three visits do not establish a relationship with Williams Point.</p></div><details class="manual-details"><summary>Manual readings and sampling notes</summary><div class="table-scroll"><table><caption>User-reported spot measurements, transcribed from the supplied screenshot. Original times are EST; no measurement precision or instrument uncertainty was supplied.</caption><thead><tr><th scope="col">Measured (Eastern)</th><th scope="col">Location</th><th scope="col">Depth (in)</th><th scope="col">Sampling note</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier wind · observations</h2><p>Measured wind speed and gusts (m/s); direction comes <strong>from</strong> 0° N, 90° E, 180° S, 270° W. Default view: past 7 days, aligned with Williams Point above. Coastal wind may differ from wind over the lagoon.</p></div><div id="windplot" class="plot"></div></article>
 </section>
-<section class="stack" style="margin-top:24px" aria-label="NOAA weather forecast">
- <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · Cocoa area (32926)</h2><p>Future weather for the NWS grid covering 28.3903, -80.8026. Default view: next 72 hours. Forecasts are separate from measured observations and may change.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p></div><div id="forecast-windplot" class="plot"></div><div class="plot-head"><p>Forecast wind speed and gusts in m/s; direction markers show where wind comes from.</p></div></article>
- <article class="card plot-card"><div class="plot-head"><h2>Forecast precipitation · amount &amp; chance</h2><p>Bars show total precipitation (mm, liquid equivalent) for each original NOAA period, often 6 hours; hover for exact UTC bounds. A period overlapping now includes its full total. Amounts are not hourly rates. The chance of precipitation (%) is shown separately; missing values are not zero.</p></div><div id="forecast-rainplot" class="plot"></div></article>
+<section style="margin-top:24px" aria-label="NOAA weather forecast">
+ <article class="card plot-card"><div class="plot-head"><h2>NOAA weather forecast · wind &amp; precipitation</h2><p>Cocoa area (32926), NWS grid covering 28.3903, -80.8026. Default view: next 72 hours. Wind and gusts use m/s on the left; precipitation totals use mm on the right. Points represent original forecast periods; connecting lines are visual guides, not hourly rain estimates. Hover for exact period bounds.</p><p id="forecast-time"></p><p><a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA graphical forecast for this location</a></p></div><div id="forecastplot" class="plot forecast-plot"></div><div class="plot-head"><p>Wind-barb shafts point toward the direction the wind comes from. A half feather is 5 knots, a full feather 10 knots, a triangle 50 knots; symbols round to the nearest 5 knots. Sparse barbs sample valid NOAA intervals; hover on wind points for direction. Precipitation points show the full total for each source period, often 6 hours, including any part before now. Forecasts are separate from observations and may change.</p></div></article>
 </section>
 <section class="twocol" style="margin-top:24px" aria-label="Additional coastal context">
  <article class="card plot-card"><div class="plot-head"><h2>Trident Pier · ocean &amp; astronomical tide</h2><p>Observed ocean level and predicted astronomical tide, meters relative to MLLW. Absolute heights are not directly comparable with Williams Point.</p><p id="ocean-time"></p></div><div id="tideplot" class="smallplot"></div></article>
@@ -56,7 +58,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 <p>The Indian River Lagoon is a shallow, elongated estuary with limited connections to the Atlantic Ocean. Sustained winds can redistribute lagoon water and elevate levels along some shorelines. High lagoon water can also reduce the hydraulic gradient for stormwater outfalls, slowing drainage from low-lying streets and neighborhoods. Local rainfall, ground elevation, blocked or undersized drains, and tidal conditions can also contribute.</p>
 <p>The gauge and weather plots describe regional conditions; manual markers report water depth only at the sampled road points and times. They do not establish whether any street is passable. Do not drive through flooded roads.</p>
 <h2>Data and methods</h2>
-<p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Card timestamps use your browser's time zone (shown explicitly); chart axes use UTC. Lines break across gaps exceeding 30 minutes for water levels and 90 minutes for hourly products. Stale means an observation or site build is over 3 hours old; this is a freshness indicator, not a flood threshold. NOAA weather forecasts come from the NWS grid API; wind is converted from reported km/h to m/s, precipitation remains mm over its source period, and forecast update times over 12 hours old are flagged. Data are preliminary where their providers have not completed quality control.</p>
+<p class="meta">Williams Point: <a href="https://mesonet.agron.iastate.edu/request/hml.php">Iowa Environmental Mesonet HML archive</a>, station WIPF1 (NWS observations). Trident Pier: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8721604">NOAA CO-OPS station 8721604</a> for actual ocean levels, tidal predictions, wind and pressure. Automatic-feed card timestamps use your browser's time zone; manual timestamps use Eastern time, both labeled explicitly. Chart axes use UTC. Lines break across gaps exceeding 30 minutes for water levels and 90 minutes for hourly products. Stale means an observation or site build is over 3 hours old; this is a freshness indicator, not a flood threshold. NOAA weather forecasts come from the NWS grid API; wind is converted from reported km/h to m/s, precipitation remains mm over its source period, and forecast update times over 12 hours old are flagged. Data are preliminary where their providers have not completed quality control.</p>
 <p class="meta"><strong>Important:</strong> No automated flooding forecast, warning threshold, or road safety decision is provided. Check <a href="https://www.weather.gov/mlb/">NWS Melbourne</a> for official advisories. This is an independent informational project, not an official NOAA/NWS product.</p>
 </section>
 <footer>Compiled from public observation services and NOAA weather forecasts. A missing or delayed upstream observation may produce an older displayed value. Source timestamps are shown explicitly. NOAA weather forecasts are an optional, separate layer. This monitor is separate from the historical flood modeling research project.</footer>
@@ -78,6 +80,9 @@ for(const row of manual){
 const last=a=>a&&a.length?a[a.length-1]:null;
 const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
 const built=fmt(payload.built_utc);const latest=last(stage);
+const deepRoad=last(manual.filter(r=>r.location_id==='indian_river_north'));
+document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inches} in`:'Unavailable';
+document.getElementById('manual-time').textContent=deepRoad?`Depth at road center · sampled ${fmtEastern(deepRoad.t)} · historical spot reading`:'No manual depth measurement available.';
 document.getElementById('manual-caption').textContent=manual.length?`Manual spot samples: ${manual.length} readings; latest visit ${fmtEastern(last(manual).t)}. Historical samples, not continuously monitored; zoom out to inspect older samples if outside the current view.`:'No manual depth samples available.';
 document.getElementById('refresh').textContent=`Site built ${built} · Williams Point latest ${fmt(latest?.t)}`;
 if(ageHours(latest?.t)>3){document.getElementById('status-dot').classList.add('stale');}
@@ -101,7 +106,7 @@ if(ageHours(payload.built_utc)>3) notices.push('Site build is over 3 hours old; 
 if(!last(dat.tide)||ageHours(last(dat.tide).t)>0) notices.push('Astronomical tide predictions do not cover the current time.');
 if(!forecast.updated_utc) notices.push('NOAA weather forecast unavailable.');
 else if(ageHours(forecast.updated_utc)>12) notices.push('NOAA weather forecast update is over 12 hours old; check the source.');
-for(const key of ['wind','gust','direction','rain','probability']){
+for(const key of ['wind','gust','direction','rain']){
  if(forecast.updated_utc&&!(forecast[key]||[]).some(r=>r.v!=null&&Date.parse(r.end)>Date.now())) notices.push(`NOAA forecast ${key}: no valid future values.`);
 }
 document.getElementById('forecast-time').textContent=forecast.updated_utc?`NOAA / National Weather Service · updated ${fmt(forecast.updated_utc)} · ${forecast.location}`:'NOAA forecast unavailable this update.';
@@ -111,7 +116,7 @@ const config={responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d
 const common={paper_bgcolor:'#fff',plot_bgcolor:'#fff',margin:{l:60,r:60,t:10,b:65},font:{size:12,color:'#395766'},hovermode:'x unified',xaxis:{title:'UTC',type:'date',gridcolor:'#edf2f5',rangeslider:{visible:false}},yaxis:{gridcolor:'#edf2f5'}};
 function draw(id,traces,opts={}){
  if(!traces.some(t=>t.y?.some(v=>v!=null))){document.getElementById(id).innerHTML='<p class="caption" style="padding:35px 14px">No data available for this chart.</p>';return;}
- Plotly.newPlot(id,traces,{...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0}},config);
+ return Plotly.newPlot(id,traces,{...common,...opts,margin:{...common.margin,...(opts.margin||{})},xaxis:{...common.xaxis,...(opts.xaxis||{})},yaxis:{...common.yaxis,...(opts.yaxis||{})},legend:{orientation:'h',y:-.25,x:0}},config);
 }
 function line(arr,name,color,key='v'){
  const rows=[];const maxGap=name==='Williams Point'||name==='Observed ocean'?30*60000:90*60000;
@@ -129,43 +134,69 @@ const manualTraces=manualStyles.map(([id,name,color,symbol])=>{
   customdata:rows.map(r=>[fmtEastern(r.t),r.notes]),
   hovertemplate:'%{y} in above road surface<br>%{customdata[0]}<br>%{customdata[1]}<extra>'+name+'</extra>'};
 });
-const manualGuides=[...new Set(manual.map(r=>r.t))].map(t=>({type:'line',xref:'x',x0:t,x1:t,yref:'paper',y0:0,y1:1,line:{color:'#8a9199',width:1,dash:'dash'},opacity:.35,layer:'below'}));
 draw('stageplot',[line(stage,'Williams Point','#10799d'),...manualTraces],{
- xaxis:{...observationAxis,anchor:'free',position:0},yaxis:{title:'Height (ft MHHW)',domain:manual.length?[.43,1]:[0,1]},
- ...(manual.length?{yaxis2:{title:'Road depth (in)',domain:[0,.29],anchor:'x',range:[0,Math.max(...manual.map(r=>r.depth_inches))*1.3||1],gridcolor:'#edf2f5',zeroline:false},shapes:manualGuides}:{}),
+ xaxis:observationAxis,yaxis:{title:'Height (ft MHHW)'},
+ yaxis2:{title:'Road depth (in)',overlaying:'y',side:'right',range:[0,Math.max(...manual.map(r=>r.depth_inches))*1.3||1],showgrid:false,zeroline:false},
  hovermode:'closest'
 });
 draw('tideplot',[line(dat.ocean,'Observed ocean','#10799d'),{...line(dat.tide,'Predicted tide','#dc8b3c'),line:{color:'#dc8b3c',dash:'dash',width:2}}],{yaxis:{title:'Height (m MLLW)'}});
 draw('windplot',[line(dat.wind,'Wind speed','#10799d','speed'),line(dat.wind,'Gust','#6b92a1','gust'),{...line(dat.wind,'Direction from','#df8d37','direction'),yaxis:'y2'}],{xaxis:observationAxis,yaxis:{title:'Speed (m/s)'},yaxis2:{title:'Direction (°)',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
 draw('pressureplot',[line(dat.pressure,'Pressure','#10799d')],{yaxis:{title:'hPa'}});
-// NWS intervals remain intervals: never redistribute a rain total or fill gaps.
+// Each marker represents a source period; lines never bridge missing intervals.
 const forecastStart=Math.max(Date.now(),Date.parse(payload.built_utc));
 const forecastAxis={range:[new Date(forecastStart).toISOString(),new Date(forecastStart+72*36e5).toISOString()],autorange:false};
-function forecastTrace(key,name,color,{axis='y',markers=false}={}){
- const x=[],y=[],customdata=[];
+function valueAt(key,time){
+ const row=(forecast[key]||[]).find(r=>Date.parse(r.t)<=time&&time<Date.parse(r.end));
+ return row?.v??null;
+}
+function forecastTrace(key,name,color,axis='y'){
+ const x=[],y=[],customdata=[];let previous=null;
  for(const row of forecast[key]||[]){
   if(Date.parse(row.end)<=forecastStart) continue;
-  const bounds=[row.t,row.end];
-  if(markers){x.push(new Date((Date.parse(row.t)+Date.parse(row.end))/2).toISOString());y.push(row.v);customdata.push(bounds);}
-  else {x.push(row.t,row.end,row.end);y.push(row.v,row.v,null);customdata.push(bounds,bounds,bounds);}
+  if(previous&&Date.parse(row.t)>Date.parse(previous.end)){x.push(row.t);y.push(null);customdata.push([]);}
+  const mid=(Date.parse(row.t)+Date.parse(row.end))/2;
+  const bearing=valueAt('direction',mid);
+  x.push(new Date(mid).toISOString());y.push(row.v);
+  customdata.push([row.t,row.end,bearing==null?'unavailable':`${bearing}° (${direction(bearing)})`]);previous=row;
  }
- return {x,y,customdata,name,type:'scatter',mode:markers?'markers':'lines',yaxis:axis,
-  line:{color,width:2,dash:'dash'},marker:{color,size:5},connectgaps:false,
-  hovertemplate:'%{y:.1f}<br>%{customdata[0]} to %{customdata[1]}<extra>'+name+'</extra>'};
+ return {x,y,customdata,name,type:'scatter',mode:'lines+markers',yaxis:axis,
+  line:{color,width:2},marker:{color,size:5},connectgaps:false,
+  hovertemplate:'%{y:.2f}<br>%{customdata[0]} to %{customdata[1]}'+(key==='wind'?'<br>From %{customdata[2]} at period midpoint':'')+'<extra>'+name+'</extra>'};
 }
-draw('forecast-windplot',[
- forecastTrace('wind','Forecast wind (m/s)','#10799d'),
- forecastTrace('gust','Forecast gust (m/s)','#6b92a1'),
- forecastTrace('direction','Direction from (°)','#df8d37',{axis:'y2',markers:true})
-],{xaxis:forecastAxis,yaxis:{title:'Speed (m/s)',rangemode:'tozero'},yaxis2:{title:'From (°)',overlaying:'y',side:'right',range:[0,360],tickvals:[0,90,180,270,360],ticktext:['N','E','S','W','N']}});
-const rain=(forecast.rain||[]).filter(row=>Date.parse(row.end)>forecastStart);
-draw('forecast-rainplot',[
- {x:rain.map(r=>new Date((Date.parse(r.t)+Date.parse(r.end))/2).toISOString()),y:rain.map(r=>r.v),
-  width:rain.map(r=>(Date.parse(r.end)-Date.parse(r.t))*.95),customdata:rain.map(r=>[r.t,r.end]),
-  name:'Period precipitation (mm)',type:'bar',marker:{color:'#10799d'},
-  hovertemplate:'%{y:.2f} mm<br>%{customdata[0]} to %{customdata[1]}<extra>Forecast period total</extra>'},
- forecastTrace('probability','Precipitation chance (%)','#df8d37',{axis:'y2'})
-],{xaxis:forecastAxis,yaxis:{title:'Period total (mm)',rangemode:'tozero'},yaxis2:{title:'Chance (%)',overlaying:'y',side:'right',range:[0,100]}});
+const speedMax=Math.max(1,...[...(forecast.wind||[]),...(forecast.gust||[])].map(r=>r.v??0));
+const forecastPlot=draw('forecastplot',[
+ forecastTrace('wind','Wind (m/s)','#10799d'),
+ forecastTrace('gust','Gust (m/s)','#6b92a1'),
+ forecastTrace('rain','Period precipitation (mm)','#cf7b29','y2')
+],{xaxis:forecastAxis,yaxis:{title:'Wind (m/s)',range:[0,speedMax*1.3]},yaxis2:{title:'Period total (mm)',overlaying:'y',side:'right',rangemode:'tozero',showgrid:false},hovermode:'closest'});
+// Existing SVG wind-barb glyphs, positioned with Plotly images. No inferred values.
+if(forecastPlot) forecastPlot.then(gd=>{
+ let signature='';
+ function updateBarbs(){
+  const range=gd.layout.xaxis.range;
+  const axisTime=value=>typeof value==='number'?value:Date.parse(/(?:Z|[+-]\d\d:\d\d)$/.test(value)?value:value.replace(' ','T')+(value.length===10?'T00:00:00Z':'Z'));
+  const start=axisTime(range[0]),end=axisTime(range[1]);
+  const yrange=gd.layout.yaxis.range||[0,speedMax*1.3];
+  const width=Math.max(120,gd.clientWidth-120),height=Math.max(120,gd.clientHeight-75);
+  const key=[start,end,width,height,...yrange].join('|');
+  if(key===signature||!(end>start)) return;
+  signature=key;
+  // A minimum three-hour spacing, increased on small screens or wide time ranges.
+  const step=Math.max(3,Math.ceil((end-start)/36e5/(width/70)))*36e5;
+  const images=[];
+  for(let time=Math.ceil(Math.max(start,forecastStart)/step)*step;time<end;time+=step){
+   const speed=valueAt('wind',time),bearing=valueAt('direction',time);
+   if(speed==null) continue;
+   const svg=window.WindBarbs.svg(speed,bearing);
+   if(!svg) continue;
+   images.push({source:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),xref:'x',yref:'y',
+    x:new Date(time).toISOString(),y:speed,sizex:(end-start)*64/width,sizey:(yrange[1]-yrange[0])*64/height,
+    xanchor:'center',yanchor:'middle',sizing:'contain',opacity:.9,layer:'above'});
+  }
+  Plotly.relayout(gd,{images});
+ }
+ gd.on('plotly_afterplot',updateBarbs);updateBarbs();
+});
 
 });
 </script>

@@ -1,7 +1,7 @@
-observed_at,location_id,water_depth_inches,standard_position,notes
-2026-11-04T16:00:00-05:00,indian_river_north,10,false,"Not a standard location, but close."
-2026-11-04T16:00:00-05:00,briarwood_entrance,5,true,"Standard: road center in the middle of the storm drain (as close as possible; drain not easily visible)."
-2026-11-05T09:30:00-05:00,indian_river_north,8,true,"New standard location: road center at the low point immediately east of the south gate support."
-2026-11-05T09:30:00-05:00,briarwood_entrance,2.75,true,"Standard: road center in the middle of the storm drain."
-2026-11-05T17:30:00-05:00,indian_river_north,6.25,true,"New standard location: road center at the low point immediately east of the south gate support."
-2026-11-05T17:30:00-05:00,briarwood_entrance,1.125,true,"Standard: road center in the middle of the storm drain."
+observed_at,location_id,water_depth_inches,standard_position,notes,original_notes
+2026-11-04T16:00:00-05:00,indian_river_north,10,false,depth at road center,"Not a standard location, but close."
+2026-11-04T16:00:00-05:00,briarwood_entrance,5,true,depth at road center,Standard: road center in the middle of the storm drain (as close as possible; drain not easily visible).
+2026-11-05T09:30:00-05:00,indian_river_north,8,true,depth at road center,New standard location: road center at the low point immediately east of the south gate support.
+2026-11-05T09:30:00-05:00,briarwood_entrance,2.75,true,depth at road center,Standard: road center in the middle of the storm drain.
+2026-11-05T17:30:00-05:00,indian_river_north,6.25,true,depth at road center,New standard location: road center at the low point immediately east of the south gate support.
+2026-11-05T17:30:00-05:00,briarwood_entrance,1.125,true,depth at road center,Standard: road center in the middle of the storm drain.

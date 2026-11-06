@@ -9,6 +9,7 @@ import json
 import math
 import re
 import sys
+import shutil
 import time
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
@@ -270,7 +271,8 @@ def parse_manual_depths(payload):
             readings.append({'t': timestamp, 'original_time': original, 'location_id': location,
                              'location': MANUAL_LOCATIONS[location], 'depth_inches': depth,
                              'standard_position': row['standard_position'] == 'true',
-                             'notes': row['notes'].strip()})
+                             'notes': row['notes'].strip(),
+                             'original_notes': row.get('original_notes', row['notes']).strip()})
         except (ValueError, TypeError, AttributeError) as exc:
             raise ValueError(f'Manual depth CSV row {reader.line_num}: {exc}') from exc
     if not readings:
@@ -289,6 +291,7 @@ def render(payload):
     template = (ROOT / 'templates' / 'index.html').read_text(encoding='utf-8')
     content = json.dumps(payload, separators=(',', ':'), ensure_ascii=False).replace('</', '<\\/')
     (SITE / 'index.html').write_text(template.replace('/*__PAYLOAD__*/', content), encoding='utf-8')
+    shutil.copytree(ROOT / 'assets', SITE / 'assets', dirs_exist_ok=True)
     (SITE / '.nojekyll').touch()
     (SITE / 'data.json').write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding='utf-8')
 

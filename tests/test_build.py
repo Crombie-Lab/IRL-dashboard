@@ -34,7 +34,8 @@ class TestParsing(unittest.TestCase):
         nonstandard = [r for r in readings if not r['standard_position']]
         self.assertEqual(len(nonstandard), 1)
         self.assertEqual(nonstandard[0]['location_id'], 'indian_river_north')
-        self.assertIn('Not a standard location', nonstandard[0]['notes'])
+        self.assertIn('Not a standard location', nonstandard[0]['original_notes'])
+        self.assertTrue(all(r['notes']=='depth at road center' for r in readings))
         self.assertTrue(all(r['original_time'].endswith('-05:00') for r in readings))
 
     def test_manual_fixture_and_rejected_invalid_rows(self):
@@ -196,6 +197,8 @@ class TestParsing(unittest.TestCase):
                 self.assertIn('Williams Point water level',html)
                 self.assertIn('"v":1.5',html)
                 self.assertTrue((Path(d) / '.nojekyll').exists())
+                self.assertTrue((Path(d) / 'assets/vendor/wind-barbs.js').is_file())
+                self.assertIn('BSD 2-Clause', (Path(d) / 'assets/vendor/wind-barbs.LICENSE').read_text())
             finally:
                 mod.SITE = original_site
 
