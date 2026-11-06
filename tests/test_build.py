@@ -84,6 +84,16 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(parsed['direction'][0]['v'], 80)
         self.assertTrue(parsed['updated_utc'].endswith('+00:00'))
 
+    def test_overlapping_rain_disables_only_summary(self):
+        body = self.nws_fixture()
+        rain = body['properties']['quantitativePrecipitation']['values']
+        rain.insert(2, dict(rain[1], value=1.524))
+        parsed = mod.parse_nws_grid(json.dumps(body), datetime(2026,11,5,18,tzinfo=timezone.utc))
+        self.assertIsNone(parsed['rain_events'])
+        self.assertTrue(any('Overlapping rain' in warning for warning in parsed['warnings']))
+        self.assertTrue(parsed['wind'])
+        self.assertTrue(parsed['rain'])
+
     def test_nws_small_nonzero_rain_totals_preserved(self):
         body = self.nws_fixture()
         source = json.loads((MOD_PATH.parents[1] / 'tests/fixtures/nws_precipitation.json').read_text())

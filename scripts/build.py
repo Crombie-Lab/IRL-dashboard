@@ -172,6 +172,41 @@ def nws_interval(value):
     return start.astimezone(UTC), (start + delta).astimezone(UTC)
 
 
+def group_rain_events(rain, probability):
+    """Sum adjoining positive source totals; never bridge dry/missing periods.
+
+    Peak PoP is a maximum of overlapping period probabilities, not a combined
+    event probability. Preserve full accumulation windows, including active ones.
+    """
+    events, active, previous_end = [], None, None
+    for row in rain:
+        if previous_end is not None and row['t'] < previous_end:
+            raise ValueError('Overlapping rain periods cannot be totaled safely')
+        previous_end = row['end']
+        if row['v'] is None or row['v'] <= 0:
+            active = None
+            continue
+        if active is None or row['t'] != active['end']:
+            active = {'t': row['t'], 'end': row['end'], 'amount_mm': 0, 'periods': 0}
+            events.append(active)
+        active['end'] = row['end']
+        active['amount_mm'] += row['v']
+        active['periods'] += 1
+    for event in events:
+        overlapping = [p for p in probability if p['t'] < event['end'] and p['end'] > event['t']]
+        values = [p['v'] for p in overlapping if p['v'] is not None]
+        event['peak_probability'] = max(values, default=None)
+        covered = event['t']
+        for row in overlapping:
+            if row['v'] is None:
+                continue
+            if row['t'] > covered:
+                break
+            covered = max(covered, row['end'])
+        event['probability_complete'] = covered >= event['end']
+    return events
+
+
 def parse_nws_grid(payload, now):
     body = json.loads(payload)
     properties = body.get('properties') if isinstance(body, dict) else None
@@ -217,6 +252,11 @@ def parse_nws_grid(payload, now):
             result['warnings'].append(f'NWS {name}: no future forecast values available.')
     if not any(row['v'] is not None for name, *_ in fields.values() for row in result[name]):
         raise ValueError('NWS grid has no future forecast values')
+    try:
+        result['rain_events'] = group_rain_events(result['rain'], result['probability'])
+    except ValueError as exc:
+        result['rain_events'] = None
+        result['warnings'].append('Rain summary unavailable: ' + str(exc))
     return result
 
 

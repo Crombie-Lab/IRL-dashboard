@@ -43,7 +43,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
  <div class="card manual-depth"><div class="metric-label">Indian River Drive · road depth</div><div id="manual-now" class="metric-value">—</div><div id="manual-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Williams Point · water level</div><div id="stage-now" class="metric-value">—</div><div id="stage-time" class="metric-caption">—</div></div>
  <div class="card"><div class="metric-label">Trident Pier · wind</div><div id="wind-now" class="metric-value">—</div><div id="wind-time" class="metric-caption">—</div></div>
- <div class="card"><div class="metric-label">Trident Pier · pressure</div><div id="pressure-now" class="metric-value">—</div><div id="pressure-time" class="metric-caption">—</div></div>
+ <div class="card"><div class="metric-label">NOAA · next rain forecast</div><div id="rain-now" class="metric-value">—</div><div id="rain-chance" class="metric-caption">—</div><div id="rain-time" class="metric-caption">—</div><div id="rain-note" class="metric-caption" hidden></div></div>
 </div>
 <div class="chart-help caption">Drag charts left or right. Tap or hover for readings. <button id="reset-views" type="button">Reset views</button></div>
 <section class="stack" aria-label="Measured observations">
@@ -51,7 +51,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 
 </section>
 <section style="margin-top:24px" aria-label="NOAA weather forecast">
- <article class="card plot-card"><div class="plot-head"><h2>NOAA rain &amp; wind forecast</h2><p>Cocoa (32926) · wind: mph (left) · rain: inches per forecast period (right).</p><p><span id="forecast-time"></span> · <a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA source</a></p><p id="precip-summary" aria-live="polite"></p></div><div class="forecast-controls" role="group" aria-label="Forecast time range"><button id="forecast-72h" type="button" aria-pressed="true">Next 3 days</button><button id="forecast-full" type="button" aria-pressed="false">Full forecast</button></div><div id="forecastplot" class="plot forecast-plot"></div><details class="manual-details"><summary>Wind symbols &amp; rain totals</summary><p>Wind symbols point toward where the wind comes from. A half feather means 5 knots (about 6 mph), a full feather 10 knots (12 mph), and a triangle 50 knots (58 mph). Circles show speeds rounded below 2.5 knots (3 mph).</p><p>Rain points are totals for each NOAA period, usually 6 hours, including any part before now. Lines between points are visual guides, not hourly rain estimates. Tap or hover for the period and amount.</p></details></article>
+ <article class="card plot-card"><div class="plot-head"><h2>NOAA rain &amp; wind forecast</h2><p>Cocoa (32926) · wind: mph (left) · rain: inches per forecast period (right).</p><p><span id="forecast-time"></span> · <a href="https://forecast.weather.gov/MapClick.php?lat=28.3903&amp;lon=-80.8026&amp;unit=0&amp;lg=english&amp;FcstType=graphical">NOAA source</a></p><p id="precip-summary" aria-live="polite"></p></div><div class="forecast-controls" role="group" aria-label="Forecast time range"><button id="forecast-72h" type="button" aria-pressed="true">Next 3 days</button><button id="forecast-full" type="button" aria-pressed="false">Full forecast</button></div><div id="forecastplot" class="plot forecast-plot"></div><details class="manual-details"><summary>Wind symbols &amp; rain totals</summary><p>Wind symbols point toward where the wind comes from. A half feather means 5 knots (about 6 mph), a full feather 10 knots (12 mph), and a triangle 50 knots (58 mph). Circles show speeds rounded below 2.5 knots (3 mph).</p><p>Rain points are totals for each NOAA period, usually 6 hours, including any part before now. Lines between points are visual guides, not hourly rain estimates. Tap or hover for the period and amount.</p><p>The rain card totals adjoining periods with rain forecast. Dry or missing periods break the group. Times are forecast windows, not exact start/stop times. Peak chance is the highest NOAA period probability, not a combined event probability.</p></details></article>
 
 </section>
 <section class="stack" style="margin-top:24px" aria-label="Observed coastal wind">
@@ -109,13 +109,49 @@ document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
 const ocean=last(dat.ocean);
 document.getElementById('ocean-time').textContent='Last measured '+fmt(ocean?.t);
-const w=last(dat.wind),p=last(dat.pressure);
+const w=last(dat.wind);
 const direction=d=>d==null?'':(['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8]);
 document.getElementById('wind-now').textContent=w?`${toMph(w.speed).toFixed(1)} mph ${direction(w.direction)}`:'Unavailable';
 document.getElementById('wind-time').textContent=w?`${w.direction==null?'Direction unavailable':'From '+direction(w.direction)} · ${fmt(w.t)}`:'No recent wind observation';
-document.getElementById('pressure-now').textContent=p?`${p.v.toFixed(1)} hPa`:'Unavailable';
-document.getElementById('pressure-time').textContent=p?'Observed '+fmt(p.t):'No recent pressure observation';
+const fmtRain=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+function rainCovered(rows,start,end){
+ let covered=start;
+ for(const row of rows){
+  if(row.v==null||Date.parse(row.end)<=covered) continue;
+  if(Date.parse(row.t)>covered) break;
+  covered=Math.max(covered,Date.parse(row.end));
+ }
+ return covered>=end;
+}
+function refreshRainCard(){
+ const now=Date.now(),rain=(forecast.rain||[]).filter(r=>Date.parse(r.end)>now);
+ const event=(forecast.rain_events||[]).find(r=>Date.parse(r.end)>now);
+ let amount='Unavailable',chance='Rain chance unavailable',time='No future rain data',note='';
+ if(forecast.updated_utc&&forecast.rain_events!=null&&rain.length){
+  if(event){
+   amount=rainLabel(toInches(event.amount_mm))+' in';
+   chance=event.peak_probability==null?'Rain chance unavailable':`${event.peak_probability}% ${event.probability_complete?'peak chance':'highest available chance'}`;
+   time=`${fmtRain(event.t)} – ${fmtRain(event.end)}`;
+   if(Date.parse(event.t)<now) note='Window underway · includes earlier hours';
+   if(!rainCovered(rain,now,Math.max(now,Date.parse(event.t)))) note+=(note?' · ':'')+'Earlier rain data missing';
+  }else{
+   const end=Date.parse(last(rain).end);
+   const probability=(forecast.probability||[]).filter(r=>Date.parse(r.end)>now&&Date.parse(r.t)<end);
+   const values=probability.filter(r=>r.v!=null).map(r=>r.v);
+   chance=values.length?(rainCovered(probability,now,end)?`Up to ${Math.max(...values)}% rain chance`:`${Math.max(...values)}% highest available chance`):'Rain chance unavailable';
+   if(rainCovered(rain,now,end)){
+    amount='0 in';time='No amount forecast through '+fmtRain(end);
+   }else time='Rain data incomplete';
+  }
+ }
+ document.getElementById('rain-now').textContent=amount;
+ document.getElementById('rain-chance').textContent=chance;
+ document.getElementById('rain-time').textContent=time;
+ document.getElementById('rain-note').textContent=note;
+ document.getElementById('rain-note').hidden=!note;
+}
 function refreshStatus(){
+refreshRainCard();
 const notices=[...(payload.warnings||[])];
 for(const [name,series] of [['Williams Point',stage],['Trident wind',dat.wind],['Trident pressure',dat.pressure],['Trident ocean observations',dat.ocean]]){
  const record=last(series);
