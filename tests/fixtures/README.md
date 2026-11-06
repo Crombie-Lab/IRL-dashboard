@@ -5,3 +5,7 @@
 Manual display notes were subsequently corrected by the user to "depth at road center"; the screenshot's initial wording remains in the `original_notes` column.
 
 `nws_precipitation.json` retains three actual NOAA `quantitativePrecipitation` periods (0, 0.254 and 0.508 mm) from the MLB/49,64 response with updateTime November 5, 2026 23:29:48 UTC. It guards against rounding small nonzero amounts to zero or altering their six-hour accumulation periods.
+
+# Watchdog fixtures
+
+`watchdog_update.json` is the real published marker from November 6, 2026. `watchdog_runs.json` contains selected fields from two real `pages.yml` workflow runs queried that day. They contain no credentials or private host configuration. Tests change copies to simulate outages, active runs and malformed timestamps; unit tests do not call GitHub or the live dashboard.

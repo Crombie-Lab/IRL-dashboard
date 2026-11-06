@@ -79,6 +79,8 @@ The hourly GitHub schedule is best effort: scheduled runs can be delayed or drop
 
 The top status dot and “Site updated” timestamp describe publication freshness only: amber means the published build is over three hours old. Individual missing/delayed feeds and quality notices remain labeled by source; a failed optional fetch does not turn the whole site amber. Williams Point and wind cards also mark their own observations delayed after three hours. Optional NOAA and SJRWMD outages do not block other feeds; failure of mandatory Williams Point after bounded HTTP retries preserves the previous publication. Forecast freshness uses its separate twelve-hour threshold. The hourly schedule cannot guarantee unattended hourly publication during GitHub scheduler gaps or Pages outages; a separately authorized external trigger would be needed to reduce dependence on that scheduler.
 
+An optional independent cron watchdog is now available in `scripts/watchdog.py`, with a private-copy installer in `scripts/install_watchdog.py`. It checks publication age every 15 minutes and dispatches `pages.yml` on `main` only when overdue and no workflow is active, with bounded cooldowns. The reusable code/tests belong in this repo; tokens, installation paths, logs, state and cron backups stay outside it. It is not activated until the user creates a dedicated repository-scoped Actions token and installs cron. See [setup instructions](docs/watchdog-setup.md) and the [focused security review](docs/security-review-2026-11-06.md). GitHub Actions dependencies are pinned to official commits, deployment permissions are isolated to the deploy job, and the existing Plotly CDN asset is integrity checked.
+
 
 ## Next rain card
 

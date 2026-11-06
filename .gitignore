@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 site/
+.watchdog-private/
+.env
+.env.*
