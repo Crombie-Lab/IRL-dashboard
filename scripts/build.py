@@ -301,7 +301,7 @@ def run():
     now = datetime.now(UTC)
     manual_depths = parse_manual_depths((ROOT / 'data' / 'manual_depths.csv').read_bytes())
     stage_start = now - timedelta(days=14)
-    tide_start = now - timedelta(days=7)
+    tide_start = stage_start
     future = now + timedelta(days=3)
     # Williams Point is mandatory; don't replace the previously published site with an empty chart.
     stage_params = {'station':'WIPF1','sts': stage_start.strftime('%Y-%m-%dT%H:%MZ'),

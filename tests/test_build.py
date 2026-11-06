@@ -133,6 +133,18 @@ class TestParsing(unittest.TestCase):
             self.assertEqual(document['weather_forecast'], {})
             self.assertTrue(any('forecast unavailable' in w for w in document['warnings']))
 
+    def test_all_observation_requests_include_fourteen_days(self):
+        now = datetime(2026, 11, 6, 12, tzinfo=timezone.utc)
+        fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
+        with patch.object(mod, 'datetime', wraps=datetime) as clock, patch.object(mod, 'get_bytes', return_value=fixture) as fetch, patch.object(mod, 'coops_recent', return_value=[]) as coops, patch.object(mod, 'nws_forecast', return_value={'warnings': []}), patch.object(mod, 'render'):
+            clock.now.return_value = now
+            mod.run()
+        self.assertEqual(fetch.call_args.args[1]['sts'], '2026-10-23T12:00Z')
+        self.assertEqual(len(coops.call_args_list), 4)
+        for call in coops.call_args_list:
+            self.assertEqual(call.args[1], now - timedelta(days=14))
+            self.assertEqual(call.args[2], now + timedelta(days=3) if call.args[0] == 'predictions' else now)
+
     def test_iem_water_height_mhhw(self):
         fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
         values = mod.parse_iem(fixture, require_reported_units=True)
