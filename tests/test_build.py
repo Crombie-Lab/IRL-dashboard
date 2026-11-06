@@ -166,7 +166,7 @@ class TestParsing(unittest.TestCase):
 
     def test_forecast_failure_preserves_observation_build(self):
         fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
-        with patch.object(mod, 'get_bytes', return_value=fixture), patch.object(mod, 'coops_recent', return_value=[]), patch.object(mod, 'nws_forecast', side_effect=ValueError('unavailable')), patch.object(mod, 'render') as render:
+        with patch.object(mod, 'get_bytes', return_value=fixture), patch.object(mod, 'coops_recent', return_value=[]), patch.object(mod, 'nws_forecast', side_effect=ValueError('unavailable')), patch.object(mod, 'water_quality_recent', return_value={}), patch.object(mod, 'render') as render:
             mod.run()
             document = render.call_args.args[0]
             self.assertTrue(document['williams_point'])
@@ -176,7 +176,7 @@ class TestParsing(unittest.TestCase):
     def test_all_observation_requests_include_fourteen_days(self):
         now = datetime(2026, 11, 6, 12, tzinfo=timezone.utc)
         fixture = (MOD_PATH.parents[1] / 'tests/fixtures/iem_water_height.csv').read_bytes()
-        with patch.object(mod, 'datetime', wraps=datetime) as clock, patch.object(mod, 'get_bytes', return_value=fixture) as fetch, patch.object(mod, 'coops_recent', return_value=[]) as coops, patch.object(mod, 'nws_forecast', return_value={'warnings': []}), patch.object(mod, 'render'):
+        with patch.object(mod, 'datetime', wraps=datetime) as clock, patch.object(mod, 'get_bytes', return_value=fixture) as fetch, patch.object(mod, 'coops_recent', return_value=[]) as coops, patch.object(mod, 'nws_forecast', return_value={'warnings': []}), patch.object(mod, 'water_quality_recent', return_value={}), patch.object(mod, 'render'):
             clock.now.return_value = now
             mod.run()
         self.assertEqual(fetch.call_args.args[1]['sts'], '2026-10-23T12:00Z')

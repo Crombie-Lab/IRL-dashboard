@@ -11,6 +11,7 @@ import re
 import sys
 import shutil
 import time
+import zipfile
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -24,14 +25,20 @@ SITE = ROOT / 'site'
 IEM = 'https://mesonet.agron.iastate.edu/cgi-bin/request/hml.py'
 COOPS = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter'
 NWS_POINT = 'https://api.weather.gov/points/28.3903,-80.8026'
+AQUARIUS = 'https://secure.sjrwmd.com/aqportal'
+WATER_QUALITY = {
+    'salinity': ('Salinity.YSI_Calc@37375724', 'ppt'),
+    'temperature': ('Water Temp.YSI@37375724', '°C'),
+    'turbidity': ('Turbidity Form Neph.YSI@37375724', 'FNU'),
+}
 HEADERS = {'User-Agent': 'IRL-dashboard/0.2 (https://github.com/Crombie-Lab/IRL-dashboard)'}
 
 
-def get_bytes(base, params, max_attempts=4):
+def get_bytes(base, params, max_attempts=4, *, data=None):
     url = base + ('?' + urlencode(params) if params else '')
     for attempt in range(max_attempts):
         try:
-            with urlopen(Request(url, headers=HEADERS), timeout=45) as response:
+            with urlopen(Request(url, headers=HEADERS, data=data), timeout=45) as response:
                 payload = response.read()
             if not payload:
                 raise ValueError('Empty HTTP response')
@@ -53,6 +60,118 @@ def get_bytes(base, params, max_attempts=4):
                 raise
             time.sleep(min(30, 3 * 2 ** attempt))
     raise RuntimeError('Exhausted HTTP retries')
+
+
+def parse_aquarius_csv(payload, *, dataset, unit):
+    """Read native instantaneous values; the validated CSV header establishes UTC.
+
+    Grade 0 / approval 800 are explicitly provisional. Keep unusable or invalid
+    values as null rows so charts cannot connect across their timestamps.
+    AQUARIUS grade codes are not QARTOD flags.
+    """
+    lines = payload.decode('utf-8-sig').splitlines()
+    reader = csv.reader(lines)
+    identity = next(reader, [])
+    if not identity or identity[0] != '#Data Set Export - ' + dataset:
+        raise ValueError('Unexpected SJRWMD dataset identity')
+    fields = next(reader, [])
+    expected = ['Timestamp (UTC)', f'Value ({unit})', 'Grade Code',
+                'Approval Level', 'Interpolation Type']
+    if fields != expected:
+        raise ValueError('Unverified SJRWMD units/timezone/schema: ' + ', '.join(fields))
+    rows = {}
+    invalid_dates = 0
+    for values in reader:
+        if not values or not any(values):
+            continue
+        if len(values) != len(expected):
+            raise ValueError('Malformed SJRWMD observation row')
+        stamp, raw, grade, approval, interpolation = values
+        try:
+            if not re.fullmatch(r'\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)?', stamp):
+                raise ValueError('Invalid UTC timestamp')
+            stamp = datetime.fromisoformat(stamp)
+            if stamp.tzinfo is not None and stamp.utcoffset() != timedelta(0):
+                raise ValueError('Non-UTC value in UTC column')
+            stamp = stamp.replace(tzinfo=UTC).isoformat(timespec='seconds')
+        except ValueError:
+            invalid_dates += 1
+            continue
+        value = safe_float(raw)
+        # Native sentinel and missing values must not become measurements.
+        if value == -9999 or (value is not None and unit in ('ppt', 'FNU') and value < 0):
+            value = None
+        accepted = grade in ('0', '1', '2', '3', '11', '12', '13') and approval in ('800', '1200') and interpolation == '1'
+        row = {'t': stamp, 'v': value if accepted else None,
+               'reported_value': value, 'grade': grade, 'approval': approval,
+               'interpolation': interpolation,
+               'quality': 'provisional' if grade == '0' or approval == '800' else 'approved' if accepted else 'excluded'}
+        if not accepted:
+            row['quality'] = 'excluded'
+        if stamp in rows and rows[stamp] != row:
+            raise ValueError('Conflicting SJRWMD observations at the same time')
+        rows[stamp] = row
+    warnings = []
+    if invalid_dates:
+        warnings.append(f'{invalid_dates} invalid observation timestamps omitted')
+    excluded = sum(r['v'] is None for r in rows.values())
+    if excluded:
+        warnings.append(f'{excluded} missing or quality-excluded readings')
+    return [rows[t] for t in sorted(rows)], warnings
+
+
+def aquarius_recent(key, start, now):
+    dataset, unit = WATER_QUALITY[key]
+    params = {
+        'DataSet': dataset, 'Calendar': 'CALENDARYEAR', 'DateRange': 'Custom',
+        'StartTime': start.strftime('%Y-%m-%d %H:%M:%S'),
+        'EndTime': now.strftime('%Y-%m-%d %H:%M:%S'),
+        'Conversion': 'Instantaneous', 'IntervalPoints': 'PointsAsRecorded',
+        'ApprovalLevels': 'True', 'Step': 1, 'ExportFormat': 'csv',
+        'Compressed': 'true', 'RoundData': 'False', 'GradeCodes': 'True',
+        'InterpolationTypes': 'True', 'Timezone': 0,
+    }
+    # Public export token, not an account credential. Never retain it in output.
+    receipt = json.loads(get_bytes(AQUARIUS + '/Export/DataSetToken', params, data=b''))
+    token = receipt.get('Token') if isinstance(receipt, dict) else None
+    if not isinstance(token, str) or not token or len(token) > 8192:
+        raise ValueError('SJRWMD export did not provide a download token')
+    archive = get_bytes(AQUARIUS + '/Export/DataSet', dict(params, Token=token))
+    with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
+        files = zipped.infolist()
+        if len(files) != 1 or not files[0].filename.endswith('.csv') or files[0].file_size > 2 * 1024 * 1024:
+            raise ValueError('Unexpected SJRWMD export archive')
+        rows, warnings = parse_aquarius_csv(zipped.read(files[0]), dataset=dataset, unit=unit)
+    future_rows = sum(datetime.fromisoformat(r['t']) > now for r in rows)
+    if future_rows:
+        warnings.append(f'{future_rows} future-dated observations omitted')
+    rows = [r for r in rows if start <= datetime.fromisoformat(r['t']) <= now]
+    if not any(r['v'] is not None for r in rows):
+        warnings.append('No valid observations in the last 14 days')
+    return {'unit': unit, 'dataset': dataset, 'data': rows, 'warnings': warnings,
+            'retrieved_utc': now.isoformat(timespec='seconds'), 'request': params,
+            'source_url': AQUARIUS + '/Data/DataSet/Chart/Location/37375724/DataSet/' +
+                          {'salinity': 'Salinity/YSI_Calc', 'temperature': 'Water%20Temp/YSI',
+                           'turbidity': 'Turbidity%20Form%20Neph/YSI'}[key] + '/Interval/Latest'}
+
+
+def water_quality_recent(start, now):
+    station = {'name': 'IRLI13', 'provider': 'SJRWMD', 'location_identifier': '37375724',
+               'latitude': 28.393066001, 'longitude': -80.735861, 'coordinate_datum': 'NAD83',
+               'series': {}}
+    for key, (dataset, unit) in WATER_QUALITY.items():
+        try:
+            station['series'][key] = aquarius_recent(key, start, now)
+        except (HTTPError, URLError, ValueError, TimeoutError, KeyError, TypeError, csv.Error,
+                zipfile.BadZipFile, RuntimeError, EOFError) as exc:
+            # Do not include request URLs or ephemeral export tokens in errors.
+            station['series'][key] = {'unit': unit, 'dataset': dataset, 'data': [],
+                                      'warnings': [f'SJRWMD {key} unavailable ({type(exc).__name__})']}
+    return {'stations': [station], 'source_url': AQUARIUS,
+            'unavailable_stations': [
+                {'name': 'IRLI14', 'reason': 'No public continuous feed found'},
+                {'name': 'IRLI15', 'reason': 'No public continuous feed found'},
+            ]}
 
 
 def utc_timestamp(value):
@@ -376,12 +495,14 @@ def run():
         warnings.extend(forecast['warnings'])
     except (HTTPError, URLError, ValueError, TimeoutError, KeyError, TypeError) as exc:
         warnings.append(f'NOAA weather forecast unavailable: {type(exc).__name__}: {exc}')
+    water_quality = water_quality_recent(stage_start, now)
     document = {
         'built_utc': now.isoformat(timespec='seconds'),
         'williams_point': stage,
         'manual_depths': manual_depths,
         'trident': sources,
         'weather_forecast': forecast,
+        'water_quality': water_quality,
         'status': {'williams_point': metrics(stage), **{k: metrics(v) for k,v in sources.items()}},
         'warnings': warnings,
         'source_notes': {'manual_depths': 'User-reported road-center spot depths with separately recorded measured deep-edge depths when supplied, inches over local road surface; transcribed from supplied screenshot; original times explicitly EST (UTC-05:00). Positions and method notes retained; not datum-referenced gauge heights.',
