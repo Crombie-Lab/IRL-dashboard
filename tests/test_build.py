@@ -31,8 +31,23 @@ class TestParsing(unittest.TestCase):
             ('2026-11-05T22:30+00:00', 'briarwood_entrance'): 1.125,
             ('2026-11-06T13:15+00:00', 'indian_river_north'): 4.25,
             ('2026-11-06T13:15+00:00', 'briarwood_entrance'): 0,
+            ('2026-11-06T22:30+00:00', 'indian_river_north'): 3.25,
+            ('2026-11-06T22:30+00:00', 'briarwood_entrance'): 0,
+            ('2026-11-07T14:00+00:00', 'indian_river_north'): 2,
+            ('2026-11-07T14:00+00:00', 'briarwood_entrance'): 0,
         }
+        self.assertEqual(len(readings), len(expected))
         self.assertEqual({(r['t'],r['location_id']):r['depth_inches'] for r in readings}, expected)
+        self.assertEqual({(r['t'], r['location_id']): r['deep_edge_depth_inches']
+                          for r in readings if r['deep_edge_depth_inches'] is not None}, {
+            ('2026-11-06T13:15+00:00', 'indian_river_north'): 9.5,
+            ('2026-11-06T22:30+00:00', 'indian_river_north'): 8.25,
+            ('2026-11-07T14:00+00:00', 'indian_river_north'): 6.5,
+        })
+        north = [r for r in readings if r['location_id'] == 'indian_river_north']
+        self.assertEqual(north[-1]['t'], '2026-11-07T14:00+00:00')
+        self.assertEqual(north[-1]['depth_inches'], 2)
+        self.assertEqual(north[-1]['deep_edge_depth_inches'], 6.5)
         nonstandard = [r for r in readings if not r['standard_position']]
         self.assertEqual(len(nonstandard), 1)
         self.assertEqual(nonstandard[0]['location_id'], 'indian_river_north')

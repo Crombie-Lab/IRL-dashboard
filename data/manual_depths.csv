@@ -7,3 +7,7 @@ observed_at,location_id,water_depth_inches,standard_position,notes,original_note
 2026-11-05T17:30:00-05:00,briarwood_entrance,1.125,true,depth at road center,Standard: road center in the middle of the storm drain.,
 2026-11-06T08:15:00-05:00,indian_river_north,4.25,true,depth at road center,4.25-9.5 (center - deep edge),9.5
 2026-11-06T08:15:00-05:00,briarwood_entrance,0,true,depth at road center,0 - 3 to 6 inches on deep edge but not measured,
+2026-11-06T17:30:00-05:00,indian_river_north,3.25,true,depth at road center,3.25-8.25 (center - deep edge),8.25
+2026-11-06T17:30:00-05:00,briarwood_entrance,0,true,depth at road center,Standard: road center in the middle of the storm drain.,
+2026-11-07T09:00:00-05:00,indian_river_north,2.0,true,depth at road center,2-6.5 (center - deep edge),6.5
+2026-11-07T09:00:00-05:00,briarwood_entrance,0,true,depth at road center,Standard: road center in the middle of the storm drain.,
