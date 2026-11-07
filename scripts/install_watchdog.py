@@ -61,6 +61,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     os.umask(0o077)
     try:
+        if args.install_cron and watchdog.ssl is None:
+            raise watchdog.WatchdogError('This Python lacks working HTTPS/TLS support; use a maintained Python environment; cron was not changed')
         destination = args.directory.absolute()
         if any((parent / '.git').exists() for parent in (destination, *destination.parents)):
             raise watchdog.WatchdogError('Installation must be outside all Git working trees')

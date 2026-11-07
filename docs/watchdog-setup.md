@@ -76,6 +76,14 @@ tail -n 20 ~/.local/share/irl-dashboard-watchdog/watchdog.log
 
 Normal fresh checks log `Publication fresh; no dispatch`. An overdue check should eventually log `Dispatched pages.yml on main` and appear in GitHub Actions as a `workflow_dispatch` event. Check that the public `update.json` advances after deployment. HTTP 401 commonly indicates an invalid/expired token; HTTP 403 can indicate missing permission, pending organization approval, or a rate limit. Response bodies are deliberately not logged. Renew a token with `--set-token`; revoke the previous token in GitHub.
 
+### Repeated network failures under cron
+
+Logs include the actual cron host and Python version. Network failures identify the publication marker, GitHub run list, or GitHub dispatch, and a safe error category (certificate verification, TLS, DNS, timeout, refused/reset connection, or OS error number). Exception strings, URLs, headers, proxy values and tokens are never logged. This distinguishes a cluster networking/environment failure from an HTTP authorization error without weakening HTTPS verification.
+
+If a manual dry run works but cron fails, compare the logged host and Python version with the intended installation. A shared home directory does not guarantee that cron runs on the host used interactively. Check public HTTPS access on the logged host using the exact interpreter and a minimal environment; do not share token files or disable certificate checks. Installing a reviewed script update without `--set-token` or `--install-cron` replaces only the private code and preserves the existing token and cron entry.
+
+`HTTPS unavailable in this Python runtime` means Python's SSL module could not load, so no GitHub request can succeed. An interpreter bundled with other software can fail this way even when an activated Conda environment works interactively. The installer refuses `--install-cron` with such an interpreter. Run the installer with the intended environment's **absolute Python path on the host shown in the failing log**, then inspect that host's `crontab -l`. Updating another host's crontab may leave the failing entry in place. Verify a subsequent scheduled success from the intended host before considering recovery operational.
+
 The private `state.json` holds cooldown/attempt times, not the token. Do not delete it casually to bypass cooldowns. A one-hour quiet period after an uncertain request is intentional. A busy workflow is not cancelled or bypassed by this helper.
 
 To disable the scheduler, use `crontab -e` and remove only the block between `# BEGIN IRL-dashboard watchdog` and `# END IRL-dashboard watchdog`. Preserve unrelated jobs. Revoke the token when retiring the watchdog. The ordinary GitHub schedule continues independently.

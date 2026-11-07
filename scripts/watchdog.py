@@ -8,13 +8,20 @@ from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
 import re
+import socket
 import stat
+import sys
 import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+try:
+    import ssl
+except ImportError:
+    ssl = None  # Report a broken Python TLS installation instead of failing before logging.
 
 UTC = timezone.utc
 SITE = 'https://crombie-lab.github.io/IRL-dashboard/update.json'
@@ -41,6 +48,37 @@ class HTTPFailure(WatchdogError):
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None  # Never forward GitHub authorization to a redirected URL.
+
+
+def network_failure(url, error):
+    """Describe only known error categories; never echo exception strings."""
+    endpoint = {SITE: 'publication marker', RUNS: 'GitHub run list', DISPATCH: 'GitHub dispatch'}[url]
+    reason = error.reason if isinstance(error, URLError) else error
+    if ssl is None:
+        detail = 'HTTPS unavailable in this Python runtime'
+    elif isinstance(reason, getattr(ssl, 'SSLCertVerificationError', ssl.CertificateError)):
+        detail = 'TLS certificate verification failed'
+    elif isinstance(reason, ssl.SSLError):
+        detail = 'TLS connection failed'
+    elif isinstance(reason, socket.gaierror):
+        detail = 'DNS lookup failed'
+    elif isinstance(reason, TimeoutError):
+        detail = 'connection timed out'
+    elif isinstance(reason, ConnectionRefusedError):
+        detail = 'connection refused'
+    elif isinstance(reason, ConnectionResetError):
+        detail = 'connection reset'
+    elif isinstance(reason, OSError) and isinstance(reason.errno, int):
+        detail = 'OS network error ' + str(reason.errno)
+    else:
+        detail = 'transport error'
+    return WatchdogError(endpoint + ': ' + detail + '; no immediate retry')
+
+
+def runtime_context():
+    # Host identifies which cluster cron daemon ran the shared private copy.
+    host = re.sub(r'[^A-Za-z0-9_.-]', '_', socket.gethostname())[:128]
+    return ' [host=' + host + '; Python=' + sys.version.split()[0] + ']'
 
 
 def timestamp(value):
@@ -112,8 +150,8 @@ def request_json(url, *, token=None, data=None, now=None):
             pass
         # Do not include exception text: URLs, bodies and headers can contain secrets.
         raise HTTPFailure(exc.code, max(0, retry_after)) from None
-    except (URLError, TimeoutError, OSError):
-        raise WatchdogError('Network request failed; no immediate retry') from None
+    except (URLError, TimeoutError, OSError) as exc:
+        raise network_failure(url, exc) from None
     if len(raw) > MAX_RESPONSE:
         raise WatchdogError('HTTP response exceeds size limit')
     if data is not None:
@@ -251,11 +289,12 @@ def main(argv=None):
                 logger.info('Another watchdog process is running; no dispatch')
                 return 0
             result = check(root, dry_run=args.dry_run)
-            logger.info(result)
+            logger.info('%s%s', result, runtime_context())
             print(result)
         return 0
     except (WatchdogError, OSError) as exc:
         message = str(exc) if isinstance(exc, WatchdogError) else 'Private file/directory unavailable; check permissions and setup'
+        message += runtime_context()
         if logger:
             logger.error(message)
         print('Watchdog error: ' + message)

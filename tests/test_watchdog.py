@@ -3,6 +3,8 @@ from datetime import datetime, timedelta, timezone
 import importlib.util
 import json
 import os
+import socket
+import ssl
 from pathlib import Path
 import sys
 import tempfile
@@ -155,6 +157,55 @@ class TestWatchdog(unittest.TestCase):
             self.assertNotIn('fake-private-value', str(caught.exception))
             self.assertEqual(opener.open.call_count, 1)
 
+    def test_network_diagnostics_identify_endpoint_and_cause_without_secrets(self):
+        secret = 'fake-private-value https://private.invalid/?token=secret'
+        cases = [
+            (ssl.SSLCertVerificationError(1, secret), 'TLS certificate verification failed'),
+            (ssl.SSLError(1, secret), 'TLS connection failed'),
+            (socket.gaierror(-2, secret), 'DNS lookup failed'),
+            (TimeoutError(secret), 'connection timed out'),
+            (ConnectionRefusedError(secret), 'connection refused'),
+            (ConnectionResetError(secret), 'connection reset'),
+            (OSError(101, secret), 'OS network error 101'),
+            (URLError(secret), 'transport error'),
+        ]
+        for url, endpoint in [(mod.SITE, 'publication marker'), (mod.RUNS, 'GitHub run list'),
+                              (mod.DISPATCH, 'GitHub dispatch')]:
+            for error, detail in cases:
+                for wrapped in (error, URLError(error)):
+                    with self.subTest(endpoint=endpoint, detail=detail, wrapped=type(wrapped).__name__):
+                        opener = MagicMock()
+                        opener.open.side_effect = wrapped
+                        with patch.object(mod, 'build_opener', return_value=opener), \
+                                self.assertRaises(mod.WatchdogError) as caught:
+                            mod.request_json(url)
+                        self.assertEqual(str(caught.exception), endpoint + ': ' + detail + '; no immediate retry')
+                        self.assertNotIn('secret', str(caught.exception))
+                        self.assertEqual(opener.open.call_count, 1)
+
+    def test_logged_failures_include_cron_host_and_python_version(self):
+        try:
+            with patch.object(mod, 'check', side_effect=mod.WatchdogError('publication marker: DNS lookup failed')), \
+                    patch.object(mod.socket, 'gethostname', return_value='cron-host\nunsafe'), \
+                    patch('builtins.print'):
+                self.assertEqual(mod.main(['--directory', str(self.root), '--dry-run']), 1)
+            log = (self.root / 'watchdog.log').read_text()
+            self.assertIn('publication marker: DNS lookup failed [host=cron-host_unsafe; Python=', log)
+        finally:
+            logger = mod.logging.getLogger('irl-watchdog')
+            for handler in logger.handlers[:]:
+                handler.close()
+                logger.removeHandler(handler)
+
+    def test_missing_python_tls_support_is_reported_without_exception_text(self):
+        opener = MagicMock()
+        opener.open.side_effect = URLError('unknown url type: https; fake-private-value')
+        with patch.object(mod, 'ssl', None), patch.object(mod, 'build_opener', return_value=opener), \
+                self.assertRaises(mod.WatchdogError) as caught:
+            mod.request_json(mod.SITE)
+        self.assertEqual(str(caught.exception),
+                         'publication marker: HTTPS unavailable in this Python runtime; no immediate retry')
+
     def test_http_retry_after_date_and_json_validation(self):
         opener = MagicMock()
         opener.open.side_effect = HTTPError(mod.RUNS, 429, '', {'Retry-After': 'Fri, 06 Nov 2026 21:30:00 GMT'}, None)
@@ -223,6 +274,13 @@ class TestWatchdog(unittest.TestCase):
         self.assertEqual((directory / 'watchdog.py').stat().st_mode & 0o777, 0o600)
         self.assertEqual(directory.stat().st_mode & 0o777, 0o700)
         self.assertFalse((directory / 'token').exists())
+
+    def test_installer_rejects_python_without_tls_before_changing_cron_or_private_files(self):
+        directory = self.root / 'install'
+        with patch.object(mod, 'ssl', None), patch.object(installer.subprocess, 'run') as run:
+            self.assertEqual(installer.main(['--directory', str(directory), '--install-cron']), 1)
+            run.assert_not_called()
+        self.assertFalse(directory.exists())
 
     def test_installer_refuses_credentials_inside_git_working_tree(self):
         (self.root / '.git').mkdir()
