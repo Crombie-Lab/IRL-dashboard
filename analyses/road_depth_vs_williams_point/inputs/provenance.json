@@ -1,0 +1,25 @@
+{
+  "retrieved_utc": "2026-11-09T15:17:43.609195+00:00",
+  "source_url": "https://mesonet.agron.iastate.edu/cgi-bin/request/hml.py?station=WIPF1&sts=2026-11-04T20%3A30Z&ets=2026-11-08T17%3A30Z&fmt=csv&kind=obs&tz=UTC",
+  "request": {
+    "station": "WIPF1",
+    "sts": "2026-11-04T20:30Z",
+    "ets": "2026-11-08T17:30Z",
+    "fmt": "csv",
+    "kind": "obs",
+    "tz": "UTC"
+  },
+  "station": "WIPF1",
+  "reported_header": "station,valid[UTC],Water Height (MHHW)[ft]",
+  "gauge_unit": "ft",
+  "gauge_datum": "MHHW",
+  "gauge_records": 930,
+  "first_utc": "2026-11-04T20:30+00:00",
+  "last_utc": "2026-11-08T17:24+00:00",
+  "sha256": {
+    "wipf1.csv": "dfa8fe063eab002cac951ce81990d07ca8ff38d7a41904e4aa8a46b59eb449d4",
+    "manual_depths.csv": "0a7b4da370f805c39cd15e2581fcb30d5ce422ea42010a82f0f169ef7a320137",
+    "dashboard_parser": "f0873b64a559c1e145a385a6bc5e7950f01c3d385829cf654a317e4c68574f1e"
+  },
+  "repository_commit": "502879d921afe61487cdad31f2603fab221d63a8"
+}

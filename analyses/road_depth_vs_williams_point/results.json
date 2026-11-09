@@ -1,0 +1,1143 @@
+{
+  "analysis_kind": "retrospective exploratory association; not a forecasting model",
+  "software": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "statsmodels": "0.15.0"
+  },
+  "provenance": {
+    "retrieved_utc": "2026-11-09T15:17:43.609195+00:00",
+    "source_url": "https://mesonet.agron.iastate.edu/cgi-bin/request/hml.py?station=WIPF1&sts=2026-11-04T20%3A30Z&ets=2026-11-08T17%3A30Z&fmt=csv&kind=obs&tz=UTC",
+    "request": {
+      "station": "WIPF1",
+      "sts": "2026-11-04T20:30Z",
+      "ets": "2026-11-08T17:30Z",
+      "fmt": "csv",
+      "kind": "obs",
+      "tz": "UTC"
+    },
+    "station": "WIPF1",
+    "reported_header": "station,valid[UTC],Water Height (MHHW)[ft]",
+    "gauge_unit": "ft",
+    "gauge_datum": "MHHW",
+    "gauge_records": 930,
+    "first_utc": "2026-11-04T20:30+00:00",
+    "last_utc": "2026-11-08T17:24+00:00",
+    "sha256": {
+      "wipf1.csv": "dfa8fe063eab002cac951ce81990d07ca8ff38d7a41904e4aa8a46b59eb449d4",
+      "manual_depths.csv": "0a7b4da370f805c39cd15e2581fcb30d5ce422ea42010a82f0f169ef7a320137",
+      "dashboard_parser": "f0873b64a559c1e145a385a6bc5e7950f01c3d385829cf654a317e4c68574f1e"
+    },
+    "repository_commit": "502879d921afe61487cdad31f2603fab221d63a8"
+  },
+  "models": {
+    "north_primary": {
+      "n": 5,
+      "residual_df": 3,
+      "x_range_ft": [
+        1.89,
+        2.39
+      ],
+      "y_range_inches": [
+        2.0,
+        8.0
+      ],
+      "zero_readings": 0,
+      "pearson_r": 0.995290704148586,
+      "pearson_ci95_fisher": [
+        0.9272765296715479,
+        0.9997047873826131
+      ],
+      "spearman_rho": 0.9999999999999999,
+      "r_squared": 0.9906035857645882,
+      "adjusted_r_squared": 0.9874714476861176,
+      "rmse_inches": 0.20733691211892044,
+      "residual_standard_error_inches": 0.2676708025635499,
+      "mae_inches": 0.18418869880767091,
+      "loo_rmse_inches": 0.39209402939612614,
+      "loo_slope_range": [
+        11.375975568374633,
+        13.020336828725771
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -21.133359253499226,
+          "standard_error": 1.4603438829410353,
+          "t": -14.47149503645542,
+          "nominal_p": 0.0007153440680875582,
+          "ci95": [
+            -25.780825248208586,
+            -16.485893258789865
+          ],
+          "hc3_ci95": [
+            -29.539166585950838,
+            -12.727551921047615
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 12.117677553136346,
+          "standard_error": 0.6813808030480529,
+          "t": 17.784001983809592,
+          "nominal_p": 0.00038766875453826545,
+          "ci95": [
+            9.949219733984824,
+            14.286135372287868
+          ],
+          "hc3_ci95": [
+            8.258957100303391,
+            15.976398005969301
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.8738780304787634,
+      "anova": {
+        "regression_ss": 22.660057024364956,
+        "residual_ss": 0.21494297563504475,
+        "total_ss": 22.875,
+        "regression_df": 1,
+        "residual_df": 3,
+        "total_df": 4,
+        "regression_ms": 22.660057024364956,
+        "residual_ms": 0.07164765854501491,
+        "F": 316.2707265601437,
+        "nominal_p": 0.0003876687545382649
+      },
+      "checks": {
+        "time_only_r_squared": 0.968054861738093,
+        "gauge_vs_elapsed_hours_r": -0.9913942530486798,
+        "time_adjusted_gauge_slope": 14.109278927420936,
+        "time_adjusted_gauge_ci95": [
+          -12.629385827575684,
+          40.84794368241756
+        ],
+        "time_adjusted_residual_df": 2,
+        "gauge_time_vif": 58.35178944301499,
+        "successive_changes_r": 0.7541997111515459,
+        "successive_hourly_rates_r": 0.7669599842921896,
+        "successive_intervals": 4,
+        "shapiro_residual_nominal_p": 0.6424434777101343,
+        "durbin_watson_descriptive": 2.7817936192162844
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 8.0,
+          "fitted_inches": 7.827890098496642,
+          "residual_inches": 0.17210990150335803,
+          "leverage": 0.618066355624677,
+          "cooks_distance": 0.875868654227996,
+          "studentized_residual": 1.040425281211072,
+          "loo_error_inches": 0.4506277570410493,
+          "loo_slope": 11.375975568374633,
+          "mean_ci95_lower": 7.158191118121247,
+          "mean_ci95_upper": 8.497589078872036,
+          "single_reading_interval95_lower": 6.744311921545018,
+          "single_reading_interval95_upper": 8.911468275448266
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 6.25,
+          "fitted_inches": 6.373768792120281,
+          "residual_inches": -0.12376879212028058,
+          "leverage": 0.31635562467599865,
+          "cooks_distance": 0.07236113626658035,
+          "studentized_residual": -0.5592358819461166,
+          "loo_error_inches": -0.18104265402843644,
+          "loo_slope": 12.27488151658768,
+          "mean_ci95_lower": 5.894642651441122,
+          "mean_ci95_upper": 6.8528949327994395,
+          "single_reading_interval95_lower": 5.396421975513163,
+          "single_reading_interval95_upper": 7.351115608727398
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 06, 08:15 AM EST",
+          "t": "2026-11-06T13:15+00:00",
+          "gauge_ft": 2.09,
+          "depth_inches": 4.25,
+          "fitted_inches": 4.192586832555737,
+          "residual_inches": 0.05741316744426328,
+          "leverage": 0.21371176775531342,
+          "cooks_distance": 0.007951625200170684,
+          "studentized_residual": 0.2418909488955575,
+          "loo_error_inches": 0.07301796604582034,
+          "loo_slope": 12.139442887753415,
+          "mean_ci95_lower": 3.7987862952818205,
+          "mean_ci95_upper": 4.586387369829653,
+          "single_reading_interval95_lower": 3.2541179708415147,
+          "single_reading_interval95_upper": 5.131055694269959
+        },
+        {
+          "point_id": 4,
+          "time_est": "Nov 06, 05:30 PM EST",
+          "t": "2026-11-06T22:30+00:00",
+          "gauge_ft": 2.04,
+          "depth_inches": 3.25,
+          "fitted_inches": 3.5867029548989215,
+          "residual_inches": -0.33670295489892155,
+          "leverage": 0.2597200622083977,
+          "cooks_distance": 0.3749517598630215,
+          "studentized_residual": -1.4620018991886163,
+          "loo_error_inches": -0.4548319327731134,
+          "loo_slope": 11.834733893557432,
+          "mean_ci95_lower": 3.152577916134,
+          "mean_ci95_upper": 4.0208279936638425,
+          "single_reading_interval95_lower": 2.6306122214783914,
+          "single_reading_interval95_upper": 4.542793688319452
+        },
+        {
+          "point_id": 5,
+          "time_est": "Nov 07, 09:00 AM EST",
+          "t": "2026-11-07T14:00+00:00",
+          "gauge_ft": 1.89,
+          "depth_inches": 2.0,
+          "fitted_inches": 1.769051321928469,
+          "residual_inches": 0.23094867807153108,
+          "leverage": 0.5921461897356144,
+          "cooks_distance": 1.3250090812879798,
+          "studentized_residual": 1.3510213671269133,
+          "loo_error_inches": 0.5662535748331745,
+          "loo_slope": 13.020336828725771,
+          "mean_ci95_lower": 1.113545496582817,
+          "mean_ci95_upper": 2.424557147274121,
+          "single_reading_interval95_lower": 0.6941872243272664,
+          "single_reading_interval95_upper": 2.8439154195296714
+        }
+      ]
+    },
+    "north_all_positions": {
+      "n": 6,
+      "residual_df": 4,
+      "x_range_ft": [
+        1.89,
+        2.61
+      ],
+      "y_range_inches": [
+        2.0,
+        10.0
+      ],
+      "zero_readings": 0,
+      "pearson_r": 0.9966488362635632,
+      "pearson_ci95_fisher": [
+        0.9682418424562634,
+        0.9996508876130007
+      ],
+      "spearman_rho": 1.0,
+      "r_squared": 0.9933089028255147,
+      "adjusted_r_squared": 0.9916361285318933,
+      "rmse_inches": 0.22610653318469554,
+      "residual_standard_error_inches": 0.276922816906088,
+      "mae_inches": 0.18344068706387398,
+      "loo_rmse_inches": 0.3570438871573552,
+      "loo_slope_range": [
+        11.302493438320225,
+        12.117677553136346
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -19.95077587468888,
+          "standard_error": 1.0556265298908398,
+          "t": -18.899464261050685,
+          "nominal_p": 4.61626455081443e-05,
+          "ci95": [
+            -22.881664986521233,
+            -17.019886762856526
+          ],
+          "hc3_ci95": [
+            -24.170628823922016,
+            -15.730922925455742
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 11.546625677060442,
+          "standard_error": 0.473839864939231,
+          "t": 24.368202279774987,
+          "nominal_p": 1.6826630298259872e-05,
+          "ci95": [
+            10.231035303402331,
+            12.862216050718553
+          ],
+          "hc3_ci95": [
+            9.583319726072476,
+            13.509931628048408
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.3928465166059611,
+      "anova": {
+        "regression_ss": 45.53700501390719,
+        "residual_ss": 0.306744986092811,
+        "total_ss": 45.84375,
+        "regression_df": 1,
+        "residual_df": 4,
+        "total_df": 5,
+        "regression_ms": 45.53700501390719,
+        "residual_ms": 0.07668624652320274,
+        "F": 593.8092823480307,
+        "nominal_p": 1.6826630298259885e-05
+      },
+      "checks": {
+        "time_only_r_squared": 0.9830258361860922,
+        "gauge_vs_elapsed_hours_r": -0.9932577476631228,
+        "time_adjusted_gauge_slope": 10.22163330707314,
+        "time_adjusted_gauge_ci95": [
+          -4.597305721345522,
+          25.040572335491802
+        ],
+        "time_adjusted_residual_df": 3,
+        "gauge_time_vif": 74.41003977355555,
+        "successive_changes_r": 0.8180340398578362,
+        "successive_hourly_rates_r": 0.6859885898747362,
+        "successive_intervals": 5,
+        "shapiro_residual_nominal_p": 0.9846954667284941,
+        "durbin_watson_descriptive": 2.744239123513865
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 04, 04:00 PM EST",
+          "t": "2026-11-04T21:00+00:00",
+          "gauge_ft": 2.61,
+          "depth_inches": 10.0,
+          "fitted_inches": 10.185917142438871,
+          "residual_inches": -0.18591714243887125,
+          "leverage": 0.6234811886985794,
+          "cooks_distance": 0.991154577704023,
+          "studentized_residual": -1.0941260430162782,
+          "loo_error_inches": -0.4937791601866355,
+          "loo_slope": 12.117677553136346,
+          "mean_ci95_lower": 9.578818154005171,
+          "mean_ci95_upper": 10.793016130872571,
+          "single_reading_interval95_lower": 9.20626597067684,
+          "single_reading_interval95_upper": 11.165568314200902
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 8.0,
+          "fitted_inches": 7.645659493485578,
+          "residual_inches": 0.35434050651442206,
+          "leverage": 0.25633143024447336,
+          "cooks_distance": 0.37943477663517405,
+          "studentized_residual": 1.4837896845164504,
+          "loo_error_inches": 0.476476377952749,
+          "loo_slope": 11.302493438320226,
+          "mean_ci95_lower": 7.2563914410628545,
+          "mean_ci95_upper": 8.034927545908301,
+          "single_reading_interval95_lower": 6.783872481971433,
+          "single_reading_interval95_upper": 8.507446504999722
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 6.25,
+          "fitted_inches": 6.260064412238325,
+          "residual_inches": -0.010064412238325104,
+          "leverage": 0.17552334943639286,
+          "cooks_distance": 0.0001705326471053895,
+          "studentized_residual": -0.040025843788379194,
+          "loo_error_inches": -0.012207031250002665,
+          "loo_slope": 11.548591382575774,
+          "mean_ci95_lower": 5.937946199505558,
+          "mean_ci95_upper": 6.582182624971092,
+          "single_reading_interval95_lower": 5.42645336411597,
+          "single_reading_interval95_upper": 7.09367546036068
+        },
+        {
+          "point_id": 4,
+          "time_est": "Nov 06, 08:15 AM EST",
+          "t": "2026-11-06T13:15+00:00",
+          "gauge_ft": 2.09,
+          "depth_inches": 4.25,
+          "fitted_inches": 4.181671790367442,
+          "residual_inches": 0.0683282096325577,
+          "leverage": 0.21241399502269076,
+          "cooks_distance": 0.010424128395119874,
+          "studentized_residual": 0.27803041339556395,
+          "loo_error_inches": 0.08675650557621584,
+          "loo_slope": 11.57837670384139,
+          "mean_ci95_lower": 3.82731611287934,
+          "mean_ci95_upper": 4.536027467855545,
+          "single_reading_interval95_lower": 3.335081462791257,
+          "single_reading_interval95_upper": 5.028262117943627
+        },
+        {
+          "point_id": 5,
+          "time_est": "Nov 06, 05:30 PM EST",
+          "t": "2026-11-06T22:30+00:00",
+          "gauge_ft": 2.04,
+          "depth_inches": 3.25,
+          "fitted_inches": 3.604340506514422,
+          "residual_inches": -0.35434050651442206,
+          "leverage": 0.25633143024447347,
+          "cooks_distance": 0.3794347766351744,
+          "studentized_residual": -1.4837896845164507,
+          "loo_error_inches": -0.4764763779527543,
+          "loo_slope": 11.302493438320225,
+          "mean_ci95_lower": 3.2150724540916986,
+          "mean_ci95_upper": 3.9936085589371455,
+          "single_reading_interval95_lower": 2.7425534950002772,
+          "single_reading_interval95_upper": 4.466127518028567
+        },
+        {
+          "point_id": 6,
+          "time_est": "Nov 07, 09:00 AM EST",
+          "t": "2026-11-07T14:00+00:00",
+          "gauge_ft": 1.89,
+          "depth_inches": 2.0,
+          "fitted_inches": 1.8723466549553542,
+          "residual_inches": 0.12765334504464576,
+          "leverage": 0.47591860635338845,
+          "cooks_distance": 0.18409929428786323,
+          "studentized_residual": 0.6367575282877782,
+          "loo_error_inches": 0.24357541899441482,
+          "loo_slope": 11.778398510242088,
+          "mean_ci95_lower": 1.3419336375984816,
+          "mean_ci95_upper": 2.402759672312227,
+          "single_reading_interval95_lower": 0.9382774896580929,
+          "single_reading_interval95_upper": 2.8064158202526155
+        }
+      ]
+    },
+    "north_interpolated": {
+      "n": 5,
+      "residual_df": 3,
+      "x_range_ft": [
+        1.89,
+        2.39
+      ],
+      "y_range_inches": [
+        2.0,
+        8.0
+      ],
+      "zero_readings": 0,
+      "pearson_r": 0.995290704148586,
+      "pearson_ci95_fisher": [
+        0.9272765296715479,
+        0.9997047873826131
+      ],
+      "spearman_rho": 0.9999999999999999,
+      "r_squared": 0.9906035857645882,
+      "adjusted_r_squared": 0.9874714476861176,
+      "rmse_inches": 0.20733691211892044,
+      "residual_standard_error_inches": 0.2676708025635499,
+      "mae_inches": 0.18418869880767091,
+      "loo_rmse_inches": 0.39209402939612614,
+      "loo_slope_range": [
+        11.375975568374633,
+        13.020336828725771
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -21.133359253499226,
+          "standard_error": 1.4603438829410353,
+          "t": -14.47149503645542,
+          "nominal_p": 0.0007153440680875582,
+          "ci95": [
+            -25.780825248208586,
+            -16.485893258789865
+          ],
+          "hc3_ci95": [
+            -29.539166585950838,
+            -12.727551921047615
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 12.117677553136346,
+          "standard_error": 0.6813808030480529,
+          "t": 17.784001983809592,
+          "nominal_p": 0.00038766875453826545,
+          "ci95": [
+            9.949219733984824,
+            14.286135372287868
+          ],
+          "hc3_ci95": [
+            8.258957100303391,
+            15.976398005969301
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.8738780304787634,
+      "anova": {
+        "regression_ss": 22.660057024364956,
+        "residual_ss": 0.21494297563504475,
+        "total_ss": 22.875,
+        "regression_df": 1,
+        "residual_df": 3,
+        "total_df": 4,
+        "regression_ms": 22.660057024364956,
+        "residual_ms": 0.07164765854501491,
+        "F": 316.2707265601437,
+        "nominal_p": 0.0003876687545382649
+      },
+      "checks": {
+        "time_only_r_squared": 0.968054861738093,
+        "gauge_vs_elapsed_hours_r": -0.9913942530486798,
+        "time_adjusted_gauge_slope": 14.109278927420936,
+        "time_adjusted_gauge_ci95": [
+          -12.629385827575684,
+          40.84794368241756
+        ],
+        "time_adjusted_residual_df": 2,
+        "gauge_time_vif": 58.35178944301499,
+        "successive_changes_r": 0.7541997111515459,
+        "successive_hourly_rates_r": 0.7669599842921896,
+        "successive_intervals": 4,
+        "shapiro_residual_nominal_p": 0.6424434777101343,
+        "durbin_watson_descriptive": 2.7817936192162844
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 8.0,
+          "fitted_inches": 7.827890098496642,
+          "residual_inches": 0.17210990150335803,
+          "leverage": 0.618066355624677,
+          "cooks_distance": 0.875868654227996,
+          "studentized_residual": 1.040425281211072,
+          "loo_error_inches": 0.4506277570410493,
+          "loo_slope": 11.375975568374633,
+          "mean_ci95_lower": 7.158191118121247,
+          "mean_ci95_upper": 8.497589078872036,
+          "single_reading_interval95_lower": 6.744311921545018,
+          "single_reading_interval95_upper": 8.911468275448266
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 6.25,
+          "fitted_inches": 6.373768792120281,
+          "residual_inches": -0.12376879212028058,
+          "leverage": 0.31635562467599865,
+          "cooks_distance": 0.07236113626658035,
+          "studentized_residual": -0.5592358819461166,
+          "loo_error_inches": -0.18104265402843644,
+          "loo_slope": 12.27488151658768,
+          "mean_ci95_lower": 5.894642651441122,
+          "mean_ci95_upper": 6.8528949327994395,
+          "single_reading_interval95_lower": 5.396421975513163,
+          "single_reading_interval95_upper": 7.351115608727398
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 06, 08:15 AM EST",
+          "t": "2026-11-06T13:15+00:00",
+          "gauge_ft": 2.09,
+          "depth_inches": 4.25,
+          "fitted_inches": 4.192586832555737,
+          "residual_inches": 0.05741316744426328,
+          "leverage": 0.21371176775531342,
+          "cooks_distance": 0.007951625200170684,
+          "studentized_residual": 0.2418909488955575,
+          "loo_error_inches": 0.07301796604582034,
+          "loo_slope": 12.139442887753415,
+          "mean_ci95_lower": 3.7987862952818205,
+          "mean_ci95_upper": 4.586387369829653,
+          "single_reading_interval95_lower": 3.2541179708415147,
+          "single_reading_interval95_upper": 5.131055694269959
+        },
+        {
+          "point_id": 4,
+          "time_est": "Nov 06, 05:30 PM EST",
+          "t": "2026-11-06T22:30+00:00",
+          "gauge_ft": 2.04,
+          "depth_inches": 3.25,
+          "fitted_inches": 3.5867029548989215,
+          "residual_inches": -0.33670295489892155,
+          "leverage": 0.2597200622083977,
+          "cooks_distance": 0.3749517598630215,
+          "studentized_residual": -1.4620018991886163,
+          "loo_error_inches": -0.4548319327731134,
+          "loo_slope": 11.834733893557432,
+          "mean_ci95_lower": 3.152577916134,
+          "mean_ci95_upper": 4.0208279936638425,
+          "single_reading_interval95_lower": 2.6306122214783914,
+          "single_reading_interval95_upper": 4.542793688319452
+        },
+        {
+          "point_id": 5,
+          "time_est": "Nov 07, 09:00 AM EST",
+          "t": "2026-11-07T14:00+00:00",
+          "gauge_ft": 1.89,
+          "depth_inches": 2.0,
+          "fitted_inches": 1.769051321928469,
+          "residual_inches": 0.23094867807153108,
+          "leverage": 0.5921461897356144,
+          "cooks_distance": 1.3250090812879798,
+          "studentized_residual": 1.3510213671269133,
+          "loo_error_inches": 0.5662535748331745,
+          "loo_slope": 13.020336828725771,
+          "mean_ci95_lower": 1.113545496582817,
+          "mean_ci95_upper": 2.424557147274121,
+          "single_reading_interval95_lower": 0.6941872243272664,
+          "single_reading_interval95_upper": 2.8439154195296714
+        }
+      ]
+    },
+    "briarwood_primary": {
+      "n": 6,
+      "residual_df": 4,
+      "x_range_ft": [
+        1.89,
+        2.61
+      ],
+      "y_range_inches": [
+        0.0,
+        5.0
+      ],
+      "zero_readings": 3,
+      "pearson_r": 0.9470207690447677,
+      "pearson_ci95_fisher": [
+        0.5853035043172354,
+        0.9943551204692649
+      ],
+      "spearman_rho": 0.9411239481143202,
+      "r_squared": 0.8968483370021436,
+      "adjusted_r_squared": 0.8710604212526796,
+      "rmse_inches": 0.5965586236741681,
+      "residual_standard_error_inches": 0.7306321148293624,
+      "mae_inches": 0.5085273020055622,
+      "loo_rmse_inches": 1.087016089421033,
+      "loo_slope_range": [
+        5.5031752203214115,
+        9.037476722532592
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -14.85122968818619,
+          "standard_error": 2.785161051809196,
+          "t": -5.332269628910353,
+          "nominal_p": 0.00595616014959036,
+          "ci95": [
+            -22.584076457669372,
+            -7.11838291870301
+          ],
+          "hc3_ci95": [
+            -30.419553440505986,
+            0.7170940641336045
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 7.372639437856819,
+          "standard_error": 1.2501773110607077,
+          "t": 5.8972750286129685,
+          "nominal_p": 0.0041358473449937625,
+          "ci95": [
+            3.9015907619329777,
+            10.84368811378066
+          ],
+          "hc3_ci95": [
+            0.36363924757137944,
+            14.381639628142258
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.020810586129458054,
+      "anova": {
+        "regression_ss": 18.565227684453227,
+        "residual_ss": 2.1352931488801064,
+        "total_ss": 20.700520833333332,
+        "regression_df": 1,
+        "residual_df": 4,
+        "total_df": 5,
+        "regression_ms": 18.565227684453227,
+        "residual_ms": 0.5338232872200266,
+        "F": 34.77785276310206,
+        "nominal_p": 0.004135847344993768
+      },
+      "checks": {
+        "time_only_r_squared": 0.8219457635416834,
+        "gauge_vs_elapsed_hours_r": -0.9932577476631228,
+        "time_adjusted_gauge_slope": 26.949164383434038,
+        "time_adjusted_gauge_ci95": [
+          10.854057173485689,
+          43.04427159338239
+        ],
+        "time_adjusted_residual_df": 3,
+        "gauge_time_vif": 74.41003977355555,
+        "successive_changes_r": 0.6736855102970791,
+        "successive_hourly_rates_r": 0.8822057370241347,
+        "successive_intervals": 5,
+        "shapiro_residual_nominal_p": 0.6979175778286384,
+        "durbin_watson_descriptive": 1.0968785437199102
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 04, 04:00 PM EST",
+          "t": "2026-11-04T21:00+00:00",
+          "gauge_ft": 2.61,
+          "depth_inches": 5.0,
+          "fitted_inches": 4.391359244620105,
+          "residual_inches": 0.6086407553798949,
+          "leverage": 0.6234811886985794,
+          "cooks_distance": 1.5259649057200444,
+          "studentized_residual": 1.3575909456215816,
+          "loo_error_inches": 1.6164949455676476,
+          "loo_slope": 5.5031752203214115,
+          "mean_ci95_lower": 2.7895915651424517,
+          "mean_ci95_upper": 5.9931269240977585,
+          "single_reading_interval95_lower": 1.8066512909151178,
+          "single_reading_interval95_upper": 6.976067198325092
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 2.75,
+          "fitted_inches": 2.7693785682916072,
+          "residual_inches": -0.019378568291607223,
+          "leverage": 0.25633143024447336,
+          "cooks_distance": 0.00016302675024165383,
+          "studentized_residual": -0.03075623826397366,
+          "loo_error_inches": -0.026058070866144423,
+          "loo_slope": 7.385990813648303,
+          "mean_ci95_lower": 1.7423352081427315,
+          "mean_ci95_upper": 3.796421928440483,
+          "single_reading_interval95_lower": 0.4956429700848832,
+          "single_reading_interval95_upper": 5.043114166498331
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 1.125,
+          "fitted_inches": 1.884661835748787,
+          "residual_inches": -0.759661835748787,
+          "leverage": 0.17552334943639286,
+          "cooks_distance": 0.1395697441982239,
+          "studentized_residual": -1.1450708806192003,
+          "loo_error_inches": -0.9213867187500036,
+          "loo_slope": 7.5210108901515245,
+          "mean_ci95_lower": 1.034786359168581,
+          "mean_ci95_upper": 2.734537312328993,
+          "single_reading_interval95_lower": -0.3147344070003517,
+          "single_reading_interval95_upper": 4.084058078497925
+        },
+        {
+          "point_id": 4,
+          "time_est": "Nov 06, 08:15 AM EST",
+          "t": "2026-11-06T13:15+00:00",
+          "gauge_ft": 2.09,
+          "depth_inches": 0.0,
+          "fitted_inches": 0.5575867369345602,
+          "residual_inches": -0.5575867369345602,
+          "leverage": 0.21241399502269076,
+          "cooks_distance": 0.0997205132662408,
+          "studentized_residual": -0.859933132024769,
+          "loo_error_inches": -0.7079693308550141,
+          "loo_slope": 7.1135377942998765,
+          "mean_ci95_lower": -0.37734394496993495,
+          "mean_ci95_upper": 1.4925174188390553,
+          "single_reading_interval95_lower": -1.6760539877329053,
+          "single_reading_interval95_upper": 2.7912274616020256
+        },
+        {
+          "point_id": 5,
+          "time_est": "Nov 06, 05:30 PM EST",
+          "t": "2026-11-06T22:30+00:00",
+          "gauge_ft": 2.04,
+          "depth_inches": 0.0,
+          "fitted_inches": 0.1889547650417196,
+          "residual_inches": -0.1889547650417196,
+          "leverage": 0.25633143024447347,
+          "cooks_distance": 0.015499981958372417,
+          "studentized_residual": -0.29989510511224104,
+          "loo_error_inches": -0.25408464566929184,
+          "loo_slope": 7.242454068241478,
+          "mean_ci95_lower": -0.8380885951071562,
+          "mean_ci95_upper": 1.2159981251905954,
+          "single_reading_interval95_lower": -2.0847808331650044,
+          "single_reading_interval95_upper": 2.4626903632484436
+        },
+        {
+          "point_id": 6,
+          "time_est": "Nov 07, 09:00 AM EST",
+          "t": "2026-11-07T14:00+00:00",
+          "gauge_ft": 1.89,
+          "depth_inches": 0.0,
+          "fitted_inches": -0.9169411506368039,
+          "residual_inches": 0.9169411506368039,
+          "leverage": 0.47591860635338845,
+          "cooks_distance": 1.3645536567572847,
+          "studentized_residual": 1.7335777935477295,
+          "loo_error_inches": 1.7496159217877132,
+          "loo_slope": 9.037476722532592,
+          "mean_ci95_lower": -2.3163808534905366,
+          "mean_ci95_upper": 0.48249855221692894,
+          "single_reading_interval95_lower": -3.3813857105427356,
+          "single_reading_interval95_upper": 1.5475034092691278
+        }
+      ]
+    },
+    "briarwood_wet_only": {
+      "n": 3,
+      "residual_df": 1,
+      "x_range_ft": [
+        2.27,
+        2.61
+      ],
+      "y_range_inches": [
+        1.125,
+        5.0
+      ],
+      "zero_readings": 0,
+      "pearson_r": 0.997162442388593,
+      "pearson_ci95_fisher": [
+        -1.0,
+        1.0
+      ],
+      "spearman_rho": 1.0,
+      "r_squared": 0.9943329365103842,
+      "adjusted_r_squared": 0.9886658730207685,
+      "rmse_inches": 0.11960518320927044,
+      "residual_standard_error_inches": 0.20716225416704037,
+      "mae_inches": 0.11117339312406571,
+      "loo_rmse_inches": 0.5020297293922752,
+      "loo_slope_range": [
+        10.22727272727273,
+        13.541666666666682
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -24.310958520179344,
+          "standard_error": 2.062142686936065,
+          "t": -11.78917379199429,
+          "nominal_p": 0.05387141679266451,
+          "ci95": [
+            -50.51296569559439,
+            1.8910486552356964
+          ],
+          "hc3_ci95": [
+            -99.66500229021912,
+            51.04308524986044
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 11.252802690582948,
+          "standard_error": 0.849520435326662,
+          "t": 13.24606474740771,
+          "nominal_p": 0.04797005460434201,
+          "ci95": [
+            0.45862211175812817,
+            22.046983269407768
+          ],
+          "hc3_ci95": [
+            -20.66841016849346,
+            43.17401554965936
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.5407410598071591,
+      "anova": {
+        "regression_ss": 7.530000467115097,
+        "residual_ss": 0.04291619955156944,
+        "total_ss": 7.572916666666666,
+        "regression_df": 1,
+        "residual_df": 1,
+        "total_df": 2,
+        "regression_ms": 7.530000467115097,
+        "residual_ms": 0.04291619955156944,
+        "F": 175.4582312925173,
+        "nominal_p": 0.04797005460434201
+      },
+      "checks": {
+        "time_only_r_squared": 0.9859033216584098,
+        "gauge_vs_elapsed_hours_r": -0.9990470980769873,
+        "time_adjusted_gauge_slope": null,
+        "time_adjusted_gauge_ci95": null,
+        "time_adjusted_residual_df": null,
+        "gauge_time_vif": 524.963091118745,
+        "successive_changes_r": null,
+        "successive_hourly_rates_r": null,
+        "successive_intervals": 2,
+        "shapiro_residual_nominal_p": 0.32124678172608134,
+        "durbin_watson_descriptive": 2.9439461883407945
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 04, 04:00 PM EST",
+          "t": "2026-11-04T21:00+00:00",
+          "gauge_ft": 2.61,
+          "depth_inches": 5.0,
+          "fitted_inches": 5.0588565022421506,
+          "residual_inches": -0.058856502242150555,
+          "leverage": 0.9192825112107617,
+          "cooks_distance": 5.694444444443983,
+          "studentized_residual": -0.999999999999964,
+          "loo_error_inches": -0.7291666666666741,
+          "loo_slope": 13.541666666666682,
+          "mean_ci95_lower": 2.5350795155019874,
+          "mean_ci95_upper": 7.582633488982314,
+          "single_reading_interval95_lower": 1.4121909893980868,
+          "single_reading_interval95_upper": 8.705522015086213
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 2.75,
+          "fitted_inches": 2.583239910313903,
+          "residual_inches": 0.1667600896860968,
+          "leverage": 0.35201793721973074,
+          "cooks_distance": 0.2716262975778488,
+          "studentized_residual": 0.9999999999999896,
+          "loo_error_inches": 0.2573529411764639,
+          "loo_slope": 11.397058823529418,
+          "mean_ci95_lower": 1.0214994070795624,
+          "mean_ci95_upper": 4.144980413548244,
+          "single_reading_interval95_lower": -0.4774385248062667,
+          "single_reading_interval95_upper": 5.643918345434074
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 1.125,
+          "fitted_inches": 1.2329035874439498,
+          "residual_inches": -0.10790358744394979,
+          "leverage": 0.7286995515695054,
+          "cooks_distance": 1.3429752066116465,
+          "studentized_residual": -1.0000000000000318,
+          "loo_error_inches": -0.3977272727272776,
+          "loo_slope": 10.22727272727273,
+          "mean_ci95_lower": -1.0140842828597818,
+          "mean_ci95_upper": 3.4798914577476814,
+          "single_reading_interval95_lower": -2.2279739852331164,
+          "single_reading_interval95_upper": 4.693781160121016
+        }
+      ]
+    },
+    "briarwood_interpolated": {
+      "n": 6,
+      "residual_df": 4,
+      "x_range_ft": [
+        1.89,
+        2.61
+      ],
+      "y_range_inches": [
+        0.0,
+        5.0
+      ],
+      "zero_readings": 3,
+      "pearson_r": 0.9470207690447677,
+      "pearson_ci95_fisher": [
+        0.5853035043172354,
+        0.9943551204692649
+      ],
+      "spearman_rho": 0.9411239481143202,
+      "r_squared": 0.8968483370021436,
+      "adjusted_r_squared": 0.8710604212526796,
+      "rmse_inches": 0.5965586236741681,
+      "residual_standard_error_inches": 0.7306321148293624,
+      "mae_inches": 0.5085273020055622,
+      "loo_rmse_inches": 1.087016089421033,
+      "loo_slope_range": [
+        5.5031752203214115,
+        9.037476722532592
+      ],
+      "coefficients": [
+        {
+          "term": "intercept",
+          "estimate": -14.85122968818619,
+          "standard_error": 2.785161051809196,
+          "t": -5.332269628910353,
+          "nominal_p": 0.00595616014959036,
+          "ci95": [
+            -22.584076457669372,
+            -7.11838291870301
+          ],
+          "hc3_ci95": [
+            -30.419553440505986,
+            0.7170940641336045
+          ]
+        },
+        {
+          "term": "gauge_slope",
+          "estimate": 7.372639437856819,
+          "standard_error": 1.2501773110607077,
+          "t": 5.8972750286129685,
+          "nominal_p": 0.0041358473449937625,
+          "ci95": [
+            3.9015907619329777,
+            10.84368811378066
+          ],
+          "hc3_ci95": [
+            0.36363924757137944,
+            14.381639628142258
+          ]
+        }
+      ],
+      "slope_equals_12_nominal_p": 0.020810586129458054,
+      "anova": {
+        "regression_ss": 18.565227684453227,
+        "residual_ss": 2.1352931488801064,
+        "total_ss": 20.700520833333332,
+        "regression_df": 1,
+        "residual_df": 4,
+        "total_df": 5,
+        "regression_ms": 18.565227684453227,
+        "residual_ms": 0.5338232872200266,
+        "F": 34.77785276310206,
+        "nominal_p": 0.004135847344993768
+      },
+      "checks": {
+        "time_only_r_squared": 0.8219457635416834,
+        "gauge_vs_elapsed_hours_r": -0.9932577476631228,
+        "time_adjusted_gauge_slope": 26.949164383434038,
+        "time_adjusted_gauge_ci95": [
+          10.854057173485689,
+          43.04427159338239
+        ],
+        "time_adjusted_residual_df": 3,
+        "gauge_time_vif": 74.41003977355555,
+        "successive_changes_r": 0.6736855102970791,
+        "successive_hourly_rates_r": 0.8822057370241347,
+        "successive_intervals": 5,
+        "shapiro_residual_nominal_p": 0.6979175778286384,
+        "durbin_watson_descriptive": 1.0968785437199102
+      },
+      "diagnostics": [
+        {
+          "point_id": 1,
+          "time_est": "Nov 04, 04:00 PM EST",
+          "t": "2026-11-04T21:00+00:00",
+          "gauge_ft": 2.61,
+          "depth_inches": 5.0,
+          "fitted_inches": 4.391359244620105,
+          "residual_inches": 0.6086407553798949,
+          "leverage": 0.6234811886985794,
+          "cooks_distance": 1.5259649057200444,
+          "studentized_residual": 1.3575909456215816,
+          "loo_error_inches": 1.6164949455676476,
+          "loo_slope": 5.5031752203214115,
+          "mean_ci95_lower": 2.7895915651424517,
+          "mean_ci95_upper": 5.9931269240977585,
+          "single_reading_interval95_lower": 1.8066512909151178,
+          "single_reading_interval95_upper": 6.976067198325092
+        },
+        {
+          "point_id": 2,
+          "time_est": "Nov 05, 09:30 AM EST",
+          "t": "2026-11-05T14:30+00:00",
+          "gauge_ft": 2.39,
+          "depth_inches": 2.75,
+          "fitted_inches": 2.7693785682916072,
+          "residual_inches": -0.019378568291607223,
+          "leverage": 0.25633143024447336,
+          "cooks_distance": 0.00016302675024165383,
+          "studentized_residual": -0.03075623826397366,
+          "loo_error_inches": -0.026058070866144423,
+          "loo_slope": 7.385990813648303,
+          "mean_ci95_lower": 1.7423352081427315,
+          "mean_ci95_upper": 3.796421928440483,
+          "single_reading_interval95_lower": 0.4956429700848832,
+          "single_reading_interval95_upper": 5.043114166498331
+        },
+        {
+          "point_id": 3,
+          "time_est": "Nov 05, 05:30 PM EST",
+          "t": "2026-11-05T22:30+00:00",
+          "gauge_ft": 2.27,
+          "depth_inches": 1.125,
+          "fitted_inches": 1.884661835748787,
+          "residual_inches": -0.759661835748787,
+          "leverage": 0.17552334943639286,
+          "cooks_distance": 0.1395697441982239,
+          "studentized_residual": -1.1450708806192003,
+          "loo_error_inches": -0.9213867187500036,
+          "loo_slope": 7.5210108901515245,
+          "mean_ci95_lower": 1.034786359168581,
+          "mean_ci95_upper": 2.734537312328993,
+          "single_reading_interval95_lower": -0.3147344070003517,
+          "single_reading_interval95_upper": 4.084058078497925
+        },
+        {
+          "point_id": 4,
+          "time_est": "Nov 06, 08:15 AM EST",
+          "t": "2026-11-06T13:15+00:00",
+          "gauge_ft": 2.09,
+          "depth_inches": 0.0,
+          "fitted_inches": 0.5575867369345602,
+          "residual_inches": -0.5575867369345602,
+          "leverage": 0.21241399502269076,
+          "cooks_distance": 0.0997205132662408,
+          "studentized_residual": -0.859933132024769,
+          "loo_error_inches": -0.7079693308550141,
+          "loo_slope": 7.1135377942998765,
+          "mean_ci95_lower": -0.37734394496993495,
+          "mean_ci95_upper": 1.4925174188390553,
+          "single_reading_interval95_lower": -1.6760539877329053,
+          "single_reading_interval95_upper": 2.7912274616020256
+        },
+        {
+          "point_id": 5,
+          "time_est": "Nov 06, 05:30 PM EST",
+          "t": "2026-11-06T22:30+00:00",
+          "gauge_ft": 2.04,
+          "depth_inches": 0.0,
+          "fitted_inches": 0.1889547650417196,
+          "residual_inches": -0.1889547650417196,
+          "leverage": 0.25633143024447347,
+          "cooks_distance": 0.015499981958372417,
+          "studentized_residual": -0.29989510511224104,
+          "loo_error_inches": -0.25408464566929184,
+          "loo_slope": 7.242454068241478,
+          "mean_ci95_lower": -0.8380885951071562,
+          "mean_ci95_upper": 1.2159981251905954,
+          "single_reading_interval95_lower": -2.0847808331650044,
+          "single_reading_interval95_upper": 2.4626903632484436
+        },
+        {
+          "point_id": 6,
+          "time_est": "Nov 07, 09:00 AM EST",
+          "t": "2026-11-07T14:00+00:00",
+          "gauge_ft": 1.89,
+          "depth_inches": 0.0,
+          "fitted_inches": -0.9169411506368039,
+          "residual_inches": 0.9169411506368039,
+          "leverage": 0.47591860635338845,
+          "cooks_distance": 1.3645536567572847,
+          "studentized_residual": 1.7335777935477295,
+          "loo_error_inches": 1.7496159217877132,
+          "loo_slope": 9.037476722532592,
+          "mean_ci95_lower": -2.3163808534905366,
+          "mean_ci95_upper": 0.48249855221692894,
+          "single_reading_interval95_lower": -3.3813857105427356,
+          "single_reading_interval95_upper": 1.5475034092691278
+        }
+      ]
+    }
+  }
+}
