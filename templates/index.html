@@ -26,7 +26,7 @@ header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
 .chart-help{margin:0 6px 14px}.chart-help button{font:inherit;color:#135b88;border:0;background:none;text-decoration:underline;cursor:pointer;padding:4px 8px}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
 .forecast-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 6px}.forecast-controls button{font:inherit;font-size:12px;padding:7px 12px;border:1px solid #b9cdd8;background:#fff;color:#28485a;border-radius:6px;cursor:pointer}.forecast-controls button[aria-pressed="true"]{background:#17667e;color:#fff;border-color:#17667e}
-.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .metric-value{color:#b42318}.plot.forecast-plot,.plot.wind-plot{height:400px}
+.manual-details{margin:12px 6px 6px;font-size:12px;color:#59717e;line-height:1.5}.manual-details summary{cursor:pointer;font-weight:650}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid #e1eaf0;vertical-align:top}caption{text-align:left;margin-top:8px}.manual-depth .depth-high{color:#b42318}.manual-depth .depth-wet{color:#a45b00}.manual-depth .depth-zero{color:#187548}.plot.forecast-plot,.plot.wind-plot{height:400px}
 .plot-card{padding:18px 14px 12px}.plot-head{padding:4px 6px 4px}.plot-head p{font-size:13px;color:#59717e;line-height:1.4;margin:7px 0 0}
 .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.explain{margin-top:24px;line-height:1.7;color:#28485a}
 .explain h2{margin-bottom:7px}.explain p{margin:7px 0 13px}.meta{font-size:13px;color:#59717e}
@@ -91,9 +91,10 @@ const qualityStation=(waterQuality.stations||[]).find(s=>s.name==='IRLI13');
 const qualitySeries=qualityStation?.series||{};
 const fmt=window.EasternTime.format;
 const fmtEastern=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+const manualTime=row=>fmtEastern(row.t)+(row.notes.includes('time inaccurate')?' · time inaccurate':'');
 for(const row of manual){
  const tr=document.createElement('tr');
- for(const value of [fmtEastern(row.t),row.location,String(row.depth_inches)+(row.standard_position?'':'*'),row.deep_edge_depth_inches==null?'—':String(row.deep_edge_depth_inches)]){const td=document.createElement('td');td.textContent=value;tr.appendChild(td);}
+ for(const value of [manualTime(row),row.location,String(row.depth_inches)+(row.standard_position?'':'*'),row.deep_edge_depth_inches==null?'—':String(row.deep_edge_depth_inches)]){const td=document.createElement('td');td.textContent=value;tr.appendChild(td);}
  document.getElementById('manual-readings').appendChild(tr);
 }
 // Source JSON retains metric units; convert only for display. Preserve missing values.
@@ -108,9 +109,10 @@ const ageHours=t=>t?(Date.now()-Date.parse(t))/36e5:Infinity;
 const built=fmt(payload.built_utc);const latest=last(stage);
 const deepRoad=last(manual.filter(r=>r.location_id==='indian_river_north'));
 document.getElementById('manual-now').textContent=deepRoad?`${deepRoad.depth_inches}${deepRoad.deep_edge_depth_inches==null?'':'–'+deepRoad.deep_edge_depth_inches} in`:'Unavailable';
+if(deepRoad)document.getElementById('manual-now').classList.add(deepRoad.depth_inches>3?'depth-high':deepRoad.depth_inches>0?'depth-wet':'depth-zero');
 document.getElementById('manual-method').textContent=deepRoad?.deep_edge_depth_inches!=null?'Center → deep edge':'Road center';
-document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood · measured ${fmtEastern(deepRoad.t)}`:'No manual depth measurement available.';
-document.getElementById('manual-caption').textContent=manual.length?`Road-center dots use inches on the right, a separate scale from the lagoon. Last measured ${fmtEastern(last(manual).t)}.`:'No road-depth readings.';
+document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood · measured ${manualTime(deepRoad)}`:'No manual depth measurement available.';
+document.getElementById('manual-caption').textContent=manual.length?`Road-center dots use inches on the right, a separate scale from the lagoon. Last measured ${manualTime(last(manual))}.`:'No road-depth readings.';
 document.getElementById('refresh').textContent=`Site updated ${built}`;
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
@@ -318,7 +320,7 @@ const manualTraces=manualStyles.map(([id,name,color,symbol])=>{
  return {x:rows.map(r=>r.t),y:rows.map(r=>r.depth_inches),yaxis:'y2',name,type:'scatter',mode:'markers+text',
   text:rows.map(r=>`${r.depth_inches}″${r.standard_position?'':'*'}`),textposition:'top center',textfont:{color,size:11},cliponaxis:false,
   marker:{color,size:8,symbol:rows.map(r=>r.standard_position?symbol:symbol+'-open'),line:{color,width:1.5}},
-  customdata:rows.map(r=>[fmtEastern(r.t),r.standard_position?'Depth at road center':'Depth at road center · nearby spot*']),
+  customdata:rows.map(r=>[fmtEastern(r.t),r.notes+(r.standard_position?'':' · nearby spot*')]),
   hovertemplate:'%{y} in above road surface<br>%{customdata[0]}<br>%{customdata[1]}<extra>'+name+'</extra>'};
 });
 function addBarbTrack(gd,samples,onRange=()=>{},trackY=null){

@@ -35,6 +35,8 @@ class TestParsing(unittest.TestCase):
             ('2026-11-06T22:30+00:00', 'briarwood_entrance'): 0,
             ('2026-11-07T14:00+00:00', 'indian_river_north'): 2,
             ('2026-11-07T14:00+00:00', 'briarwood_entrance'): 0,
+            ('2026-11-08T17:00+00:00', 'indian_river_north'): 0,
+            ('2026-11-08T17:00+00:00', 'briarwood_entrance'): 0,
         }
         self.assertEqual(len(readings), len(expected))
         self.assertEqual({(r['t'],r['location_id']):r['depth_inches'] for r in readings}, expected)
@@ -45,14 +47,19 @@ class TestParsing(unittest.TestCase):
             ('2026-11-07T14:00+00:00', 'indian_river_north'): 6.5,
         })
         north = [r for r in readings if r['location_id'] == 'indian_river_north']
-        self.assertEqual(north[-1]['t'], '2026-11-07T14:00+00:00')
-        self.assertEqual(north[-1]['depth_inches'], 2)
-        self.assertEqual(north[-1]['deep_edge_depth_inches'], 6.5)
+        self.assertEqual(north[-1]['t'], '2026-11-08T17:00+00:00')
+        self.assertEqual(north[-1]['depth_inches'], 0)
+        self.assertIsNone(north[-1]['deep_edge_depth_inches'])
         nonstandard = [r for r in readings if not r['standard_position']]
         self.assertEqual(len(nonstandard), 1)
         self.assertEqual(nonstandard[0]['location_id'], 'indian_river_north')
         self.assertIn('Not a standard location', nonstandard[0]['original_notes'])
-        self.assertTrue(all(r['notes']=='depth at road center' for r in readings))
+        uncertain = [r for r in readings if r['t'] == '2026-11-08T17:00+00:00']
+        self.assertEqual(len(uncertain), 2)
+        self.assertTrue(all(r['notes'] == 'depth at road center; time inaccurate, censor from regression analysis'
+                            and r['original_time'] == '2026-11-08T12:00:00-05:00'
+                            and r['deep_edge_depth_inches'] is None for r in uncertain))
+        self.assertTrue(all(r['notes']=='depth at road center' for r in readings if r not in uncertain))
         self.assertTrue(all(r['original_time'].endswith('-05:00') for r in readings))
 
     def test_manual_measured_edge_and_unmeasured_notes(self):
