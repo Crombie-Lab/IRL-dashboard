@@ -26,6 +26,8 @@ The build uses Python 3's standard library; there are no pip dependencies. Plotl
 
 Optional color-boundary browser check (development-only Playwright/Chromium): `python3 tests/browser_stage_bands.py --url http://localhost:8000/`. Its boundary examples exist only in browser memory and never modify saved observations.
 
+The plot key uses the requested Low, Mild, Moderate, and Heavy labels under “Preliminary flood risk.” These are user-defined categories; their numerical ranges remain available on hover. They do not represent validated flood-risk probabilities.
+
 ## Sources & handling
 
 - **Williams Point WIPF1:** Iowa Environmental Mesonet (IEM) HML processed **observations** for the last 14 days. Values are feet relative to MHHW, verified from the returned `Water Height (MHHW)[ft]` header. The production build rejects unknown units/datums rather than applying this label to an unverified column. Do not compare absolute heights with other sites until datum conversion is verified.

@@ -43,6 +43,11 @@ with sync_playwright() as p:
                 const g=document.getElementById('stageplot');
                 const shapes=g.layout.shapes||[];
                 const range=g.layout.yaxis.range;
+                const key=document.getElementById('stage-level-key');
+                if(!key.textContent.startsWith('Preliminary flood risk:')) throw Error('Risk qualification missing');
+                const labels=Array.from(key.querySelectorAll('span'));
+                if(labels.map(s=>s.textContent).join(',')!=='Low,Mild,Moderate,Heavy') throw Error('Band labels changed');
+                if(labels.some(s=>!s.title.includes('ft MHHW'))) throw Error('Numerical ranges missing');
                 for(const s of shapes){
                     if(s.xref!=='x domain'||s.yref!=='y'||s.x0!==0||s.x1!==1||s.layer!=='below')
                         throw Error('Band escapes the gauge panel');

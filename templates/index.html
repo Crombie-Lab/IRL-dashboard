@@ -107,15 +107,16 @@ const toFahrenheit=v=>v==null?null:v*9/5+32;
 // All boundaries are Williams Point gauge feet MHHW, never road-depth inches.
 const stageCrossing=1.744,stageUpper=stageCrossing+3/12;
 const stageBands=[
- {id:'green',min:-Infinity,max:1.652,color:'#187548',fill:'rgba(24,117,72,0.09)',label:'<1.652'},
- {id:'yellow',min:1.652,max:stageCrossing,color:'#806000',fill:'rgba(245,200,0,0.23)',label:'1.652–1.744'},
- {id:'orange',min:stageCrossing,max:stageUpper,color:'#a45b00',fill:'rgba(224,126,22,0.13)',label:'>1.744–1.994'},
- {id:'red',min:stageUpper,max:Infinity,color:'#b42318',fill:'rgba(180,35,24,0.10)',label:'>1.994'}
+ {id:'green',min:-Infinity,max:1.652,color:'#187548',fill:'rgba(24,117,72,0.09)',label:'Low',range:'<1.652'},
+ {id:'yellow',min:1.652,max:stageCrossing,color:'#806000',fill:'rgba(245,200,0,0.23)',label:'Mild',range:'1.652–1.744'},
+ {id:'orange',min:stageCrossing,max:stageUpper,color:'#a45b00',fill:'rgba(224,126,22,0.13)',label:'Moderate',range:'>1.744–1.994'},
+ {id:'red',min:stageUpper,max:Infinity,color:'#b42318',fill:'rgba(180,35,24,0.10)',label:'Heavy',range:'>1.994'}
 ];
 const stageBand=value=>!Number.isFinite(value)?null:stageBands[value<1.652?0:value<=stageCrossing?1:value<=stageUpper?2:3];
 const levelKey=document.getElementById('stage-level-key');
-levelKey.append('Exploratory bands · ft MHHW:');
-for(const band of stageBands){const item=document.createElement('span');item.textContent=band.label;item.style.setProperty('--level-color',band.color);item.style.setProperty('--level-fill',band.fill);levelKey.appendChild(item);}
+levelKey.append('Preliminary flood risk:');
+levelKey.title='User-defined categories from one falling-water episode; flood-risk probabilities have not been validated.';
+for(const band of stageBands){const item=document.createElement('span');item.textContent=band.label;item.title=`${band.label}: ${band.range} ft MHHW · user-defined category`;item.style.setProperty('--level-color',band.color);item.style.setProperty('--level-fill',band.fill);levelKey.appendChild(item);}
 const rainLabel=v=>v===0?'0':v<.01?'<0.01':v.toFixed(2);
 const axisTime=value=>typeof value==='number'?value:Date.parse(/(?:Z|[+-]\d\d:\d\d)$/.test(value)?value:value.replace(' ','T')+(value.length===10?'T00:00:00Z':'Z'));
 const last=a=>a&&a.length?a[a.length-1]:null;
