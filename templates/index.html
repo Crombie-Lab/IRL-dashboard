@@ -22,6 +22,7 @@ header p{max-width:720px;color:#d9e8f0;margin:10px 0 0;line-height:1.6}
 .card{background:#fff;border:1px solid #e1eaf0;border-radius:14px;box-shadow:0 3px 18px #102d4410;padding:19px}
 .metric-label{font-size:13px;color:#5c7080;font-weight:650}.metric-value{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.03em;margin:7px 0 4px}.metrics .metric-value{font-size:20px;white-space:nowrap}.metrics .quality-values .metric-value{font-size:17px}
 .metric-caption,.caption{font-size:12px;color:#647887;line-height:1.5}.status{display:flex;align-items:center;gap:8px;margin:16px 0 18px;color:#415b69;font-size:13px}
+.stage-color{color:var(--level-color);background:var(--level-fill);border-radius:5px;padding:0 4px}.level-key{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:8px;font-size:12px;color:#59717e}.level-key span{border-left:4px solid var(--level-color);background:var(--level-fill);padding:2px 5px;border-radius:3px}
 .dot{height:10px;width:10px;border-radius:100%;display:inline-block;background:#1ca876}.dot.stale{background:#c47924}
 .chart-help{margin:0 6px 14px}.chart-help button{font:inherit;color:#135b88;border:0;background:none;text-decoration:underline;cursor:pointer;padding:4px 8px}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}.plot{height:315px;width:100%}.smallplot{height:255px;width:100%}
@@ -50,7 +51,7 @@ footer{padding:24px 2px;color:#607686;font-size:12px;line-height:1.7}
 </div>
 <div class="chart-help caption">Drag charts left or right. Tap or hover for readings. <button id="reset-views" type="button">Reset views</button></div>
 <section class="stack" aria-label="Measured observations">
- <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level &amp; Trident wind</h2><p>Top: IEM / NWS WIPF1 · ft MHHW. Bottom: NOAA Trident Pier 8721604 · mph.</p><p id="observed-times" class="caption"></p></div><div id="stageplot" class="plot combined-plot"></div><div class="plot-head"><p id="manual-caption"></p></div><details class="manual-details"><summary>Road-depth readings</summary><div class="table-scroll"><table><caption>Only center depths are plotted. * First Indian River Drive reading used a nearby spot. These are separate spot measurements, not a live road monitor.</caption><thead><tr><th scope="col">Time (Eastern)</th><th scope="col">Location</th><th scope="col">Center (in)</th><th scope="col">Measured deep edge (in)</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
+ <article class="card plot-card"><div class="plot-head"><h2>Williams Point water level &amp; Trident wind</h2><p>Top: IEM / NWS WIPF1 · ft MHHW. Bottom: NOAA Trident Pier 8721604 · mph.</p><p id="observed-times" class="caption"></p><div id="stage-level-key" class="level-key" aria-label="Exploratory Williams Point level bands"></div></div><div id="stageplot" class="plot combined-plot"></div><details class="manual-details"><summary>About the level colors</summary><p>The colors show exploratory ranges from five north-culvert readings on November 5–7, 2026. The fitted line reaches zero road-center depth at 1.744 ft MHHW; its nominal 95% interval is 1.652–1.810 ft. Yellow uses only the lower part of that interval. Orange ends 3 inches of lagoon-level rise above 1.744 ft, at 1.994 ft.</p><p>These are preliminary comparison bands from one falling-water episode, not verified drying levels, current road depths, or road-safety ratings. The green band does not establish that the road is dry.</p></details><div class="plot-head"><p id="manual-caption"></p></div><details class="manual-details"><summary>Road-depth readings</summary><div class="table-scroll"><table><caption>Only center depths are plotted. * First Indian River Drive reading used a nearby spot. These are separate spot measurements, not a live road monitor.</caption><thead><tr><th scope="col">Time (Eastern)</th><th scope="col">Location</th><th scope="col">Center (in)</th><th scope="col">Measured deep edge (in)</th></tr></thead><tbody id="manual-readings"></tbody></table></div></details></article>
 
 </section>
 <section style="margin-top:24px" aria-label="NOAA weather forecast">
@@ -102,6 +103,19 @@ const toMph=v=>v==null?null:v/0.44704;
 const toInches=v=>v==null?null:v/25.4;
 const toFeet=v=>v==null?null:v/0.3048;
 const toFahrenheit=v=>v==null?null:v*9/5+32;
+// User-selected display bands, based on the exploratory north-culvert fit.
+// All boundaries are Williams Point gauge feet MHHW, never road-depth inches.
+const stageCrossing=1.744,stageUpper=stageCrossing+3/12;
+const stageBands=[
+ {id:'green',min:-Infinity,max:1.652,color:'#187548',fill:'rgba(24,117,72,0.09)',label:'<1.652'},
+ {id:'yellow',min:1.652,max:stageCrossing,color:'#806000',fill:'rgba(245,200,0,0.23)',label:'1.652–1.744'},
+ {id:'orange',min:stageCrossing,max:stageUpper,color:'#a45b00',fill:'rgba(224,126,22,0.13)',label:'>1.744–1.994'},
+ {id:'red',min:stageUpper,max:Infinity,color:'#b42318',fill:'rgba(180,35,24,0.10)',label:'>1.994'}
+];
+const stageBand=value=>!Number.isFinite(value)?null:stageBands[value<1.652?0:value<=stageCrossing?1:value<=stageUpper?2:3];
+const levelKey=document.getElementById('stage-level-key');
+levelKey.append('Exploratory bands · ft MHHW:');
+for(const band of stageBands){const item=document.createElement('span');item.textContent=band.label;item.style.setProperty('--level-color',band.color);item.style.setProperty('--level-fill',band.fill);levelKey.appendChild(item);}
 const rainLabel=v=>v===0?'0':v<.01?'<0.01':v.toFixed(2);
 const axisTime=value=>typeof value==='number'?value:Date.parse(/(?:Z|[+-]\d\d:\d\d)$/.test(value)?value:value.replace(' ','T')+(value.length===10?'T00:00:00Z':'Z'));
 const last=a=>a&&a.length?a[a.length-1]:null;
@@ -115,6 +129,8 @@ document.getElementById('manual-time').textContent=deepRoad?`North of Briarwood 
 document.getElementById('manual-caption').textContent=manual.length?`Road-center dots use inches on the right, a separate scale from the lagoon. Last measured ${manualTime(last(manual))}.`:'No road-depth readings.';
 document.getElementById('refresh').textContent=`Site updated ${built}`;
 document.getElementById('stage-now').textContent=latest?latest.v.toFixed(2)+' ft':'Unavailable';
+const currentStageBand=stageBand(latest?.v);
+if(currentStageBand){const value=document.getElementById('stage-now');value.classList.add('stage-color');value.dataset.levelBand=currentStageBand.id;value.style.setProperty('--level-color',currentStageBand.color);value.style.setProperty('--level-fill',currentStageBand.fill);value.title=`${latest.v.toFixed(3)} ft MHHW · exploratory ${currentStageBand.id} band`;}
 document.getElementById('stage-time').textContent=latest?'Observed '+fmt(latest.t)+' · ft MHHW':'No observation';
 const ocean=last(dat.ocean);
 document.getElementById('ocean-time').textContent='Last measured '+fmt(ocean?.t);
@@ -267,6 +283,13 @@ function draw(id,traces,opts={}){
  }
  Object.assign(axis,window.EasternTime.ticks(axisTime(axis.range[0]),axisTime(axis.range[1]),document.getElementById(id).clientWidth-layout.margin.l-layout.margin.r));
  for(const key of Object.keys(layout).filter(k=>/^yaxis\d*$/.test(k))) layout[key]=fixedHeight(traces,key.replace('axis',''),layout[key]);
+ if(id==='stageplot'&&stage.some(row=>Number.isFinite(row.v))){
+  // Clip shading to the full-trace gauge range and the upper panel. Neither
+  // the independent road-depth axis nor the wind panel defines these bands.
+  const [low,high]=layout.yaxis.range;
+  layout.shapes=stageBands.map(band=>({type:'rect',xref:'x domain',x0:0,x1:1,yref:'y',
+   y0:Math.max(low,band.min),y1:Math.min(high,band.max),fillcolor:band.fill,line:{width:0},layer:'below'})).filter(shape=>shape.y1>shape.y0);
+ }
  return Plotly.newPlot(id,traces,layout,config).then(gd=>{
   let tickSignature='';
   function updateLocalTicks(){
